@@ -152,8 +152,12 @@ def advancedSearchHelper(problem, fringe, heuristic=None):
             for child in problem.getSuccessors(state):
                 path = node[0][:]                               #gets the current action path 
                 path.append(child[1])                           #appends the new action
-                cost = child[2] + node[2]                       #cost of whole path plus cost of parent-->child
-                fringe.update( (path, child[0], cost), cost)      #makes new node (path, state) and adds to fringe
+                if (heuristic):
+                    cost = child[2] - heuristic(node[1], problem) + heuristic(child[0], problem) + node[2]  #cost of 
+                       #whole path - heuristic of parent + heuristic of child + cost of parent-->child
+                else:
+                    cost = child[2] + node[2]
+                fringe.update( (path, child[0], cost), cost)    #makes new node (path, state) and adds to fringe
         
 
 
@@ -175,8 +179,11 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    fringe.update( ([], problem.getStartState(), 0), 0 )
+
+    return advancedSearchHelper(problem, fringe, heuristic)
+    
 
 
 # Abbreviations

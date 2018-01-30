@@ -473,6 +473,8 @@ class ClosestDotSearchAgent(SearchAgent):
         self.actionIndex = 0
         print 'Path found with cost %d.' % len(self.actions)
 
+
+
     def findPathToClosestDot(self, gameState):
         """
         Returns a path (a list of actions) to the closest dot, starting from
@@ -485,7 +487,11 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        return search.breadthFirstSearch(problem) 
+
+
+        
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +527,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
