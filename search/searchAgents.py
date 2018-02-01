@@ -297,7 +297,6 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         #position, corners_not_seen
-        #corner_list = list(self.corners)
         return(self.startingPosition, self.corners)
 
     def isGoalState(self, state):
@@ -376,7 +375,11 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    current_loc = state[0]
+    loc_to_closest_corner = min([abs(current_loc[0] - xy2[0]) + abs(current_loc[1] - xy2[1]) for xy2 in corners])
+    manhattan = (walls.height-2) * 3 + loc_to_closest_corner
+
+    return manhattan 
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
