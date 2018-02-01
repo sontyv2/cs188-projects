@@ -338,10 +338,7 @@ class CornersProblem(search.SearchProblem):
                 corners_not_seen = state[1]
 
                 if nextLoc in corners_not_seen: #its a corner we haven't seen yet
-                    print(corners_not_seen)
                     corners_not_seen = tuple(loc for loc in corners_not_seen if loc != nextLoc)
-                    print("CORNER")
-                    print(corners_not_seen)
                 successors.append( ( (nextLoc, corners_not_seen), action, 1) )
 
 
