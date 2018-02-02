@@ -90,7 +90,7 @@ def basicSearchHelper(problem, fringe):
             return []
         node = fringe.pop()
         if problem.isGoalState(node[1]):
-            print(node)
+            #print(node)
             return node[0]
         state = node[1]                                 #gets the current position
 
@@ -143,7 +143,7 @@ def advancedSearchHelper(problem, fringe, heuristic=None):
             return []
         node = fringe.pop()
         if problem.isGoalState(node[1]):
-            print(node)
+            #print(node)
             return node[0]
         state = node[1]                                         #gets the current position
 
