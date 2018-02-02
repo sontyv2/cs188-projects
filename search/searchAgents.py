@@ -383,7 +383,7 @@ def cornersHeuristic(state, problem):
     else:
         loc_to_closest_corner = 0
 
-    manhattan = (walls.height-2) * len(corners_not_seen) + loc_to_closest_corner
+    manhattan = (walls.height-2) * (len(corners_not_seen) - 1) + loc_to_closest_corner
 
     return manhattan 
 
