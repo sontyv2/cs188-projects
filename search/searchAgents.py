@@ -506,7 +506,28 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    # iterate through all squares on food board
+    # if square has food
+    # calculate mazeDistance
+    # store max distance and location
+    # return max distance
+    rows = foodGrid.height - 2 #len(foodGrid)
+    cols = foodGrid.width - 2 #len(foodGrid[0])
+    max_distance = 0
+    max_location = position
+
+    for x in range(rows):
+        for y in range(cols):
+            print(x, y)
+
+            if foodGrid[x][y]:
+                distance = mazeDistance(position, (x, y), problem.startingGameState)
+                if distance > max_distance:
+                    max_distance = distance
+                    max_location = (x, y)
+
+    return max_distance
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
