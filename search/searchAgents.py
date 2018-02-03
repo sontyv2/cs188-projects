@@ -394,23 +394,9 @@ def cornersHeuristic(state, problem):
         current_loc = corners_list.pop(closest_idx)
         dist_total += dist_from_loc_to_closest_corner
 
+
     return dist_total
 
-
-    #dists = [mazeDistance(current_loc, xy2, problem.game_state) for xy2 in corners_not_seen]
-
-
-    # corner_dists = []
-    # for corner in corners_not_seen:
-    #     for corner2 in corners_not_seen:
-    #         if corner != corner2:
-    #             corner_dists.append(mazeDistance(corner, corner2, problem.game_state))
-
-
-    #manhattan = (walls.height-2) * (len(corners_not_seen) - 1) + loc_to_closest_corner
-    # maze = sum(corner_dists) / 2 + loc_to_closest_corner
-
-    # return maze 
 
 
 
@@ -511,17 +497,20 @@ def foodHeuristic(state, problem):
     # calculate mazeDistance
     # store max distance and location
     # return max distance
-    rows = foodGrid.height - 2 #len(foodGrid)
-    cols = foodGrid.width - 2 #len(foodGrid[0])
+
     max_distance = 0
     max_location = position
 
-    for x in range(rows):
-        for y in range(cols):
-            print(x, y)
+    width = foodGrid.width
+    height = foodGrid.height
 
+    current_game_state = problem.startingGameState
+    current_game_state.foodGrid = foodGrid
+
+    for x in range(width):
+        for y in range(height):
             if foodGrid[x][y]:
-                distance = mazeDistance(position, (x, y), problem.startingGameState)
+                distance = mazeDistance(position, (x, y), current_game_state)
                 if distance > max_distance:
                     max_distance = distance
                     max_location = (x, y)
