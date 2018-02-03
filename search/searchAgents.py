@@ -378,23 +378,41 @@ def cornersHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     current_loc = state[0]
     corners_not_seen = state[1]
-    #dists = [abs(current_loc[0] - xy2[0]) + abs(current_loc[1] - xy2[1]) for xy2 in corners_not_seen]
-    dists = [mazeDistance(current_loc, xy2, problem.game_state) for xy2 in corners_not_seen]
-    if dists:
-        loc_to_closest_corner = min(dists)
-    else:
-        loc_to_closest_corner = 0
 
-    corner_dists = []
-    for corner in corners_not_seen:
-        for corner2 in corners_not_seen:
-            if corner != corner2:
-                corner_dists.append(mazeDistance(corner, corner2, problem.game_state))
+    corners_list = list(corners_not_seen)
+
+    dist_total = 0
+
+    closest_idx = -1
+
+    while len(corners_list) > 0:
+        dists = [abs(current_loc[0] - xy2[0]) + abs(current_loc[1] - xy2[1]) for xy2 in corners_list]
+
+        dist_from_loc_to_closest_corner = min(dists)
+        closest_idx = dists.index(dist_from_loc_to_closest_corner)
+
+        current_loc = corners_list.pop(closest_idx)
+        dist_total += dist_from_loc_to_closest_corner
+
+    return dist_total
+
+
+    #dists = [mazeDistance(current_loc, xy2, problem.game_state) for xy2 in corners_not_seen]
+
+
+    # corner_dists = []
+    # for corner in corners_not_seen:
+    #     for corner2 in corners_not_seen:
+    #         if corner != corner2:
+    #             corner_dists.append(mazeDistance(corner, corner2, problem.game_state))
+
 
     #manhattan = (walls.height-2) * (len(corners_not_seen) - 1) + loc_to_closest_corner
-    maze = sum(corner_dists) / 2 + loc_to_closest_corner
+    # maze = sum(corner_dists) / 2 + loc_to_closest_corner
 
-    return maze 
+    # return maze 
+
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
