@@ -79,12 +79,14 @@ class ReflexAgent(Agent):
         # print("------------------------------------")
         # print(successorGameState)
         # print(newPos)
-        # print(newFood)
+        print('NEWFOOD')
+        print(newFood)
         # print(newGhostStates)
         # print(newScaredTimes)
 
         #manhatFood = float("inf")
-        manhatGhost = 1
+        # manhatGhost = 1
+        manhatGhost = float("inf")
         food_count = successorGameState.getNumFood()
         #          temp = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
 
@@ -92,11 +94,27 @@ class ReflexAgent(Agent):
 
         ghostList = [s.getPosition() for s in newGhostStates]
 
+        
         for ghost in ghostList:
-          manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
+          # manhatGhost = sum of ghost distances
+          # manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
+
+          # manhatGhost = closest ghost distance
+          manhatGhost = min(manhatGhost, abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
 
         if (manhatGhost <= 2):
           return 0
+
+        # find nearest food
+        manhatFood = float("inf")
+        # for x in len(newFood):
+        #   for y in len(newFood[0]):
+        for index in newFood.asList():
+          x, y = index
+          manhatFood = min(manhatFood, abs(newPos[0] - x) + abs(newPos[1] - y))
+
+
+
 
         print("------")
         # print(newPos)
@@ -104,7 +122,13 @@ class ReflexAgent(Agent):
         # print(manhatGhost)
         # print(food_count)
         # print(successorGameState.getScore())
-        score = 0.1*manhatGhost + 1/food_count + successorGameState.getScore()
+
+        if manhatFood == 0:
+          manhatFood = 0.0001 # avoid divide by zero error
+
+
+        # want score to be nearest food / nearest ghost  
+        score = 0.5*manhatGhost + 1/manhatFood + 0.5 * successorGameState.getScore()
         print("score is ", score)
         print("------")
 
