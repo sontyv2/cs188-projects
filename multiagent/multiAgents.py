@@ -44,8 +44,10 @@ class ReflexAgent(Agent):
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
+        print("out of " + str(scores) + " the best score is " + str(bestScore))
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        print("chosen idx", legalMoves[chosenIndex])
 
         "Add more of your code here if you want to"
 
@@ -74,8 +76,37 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        print(successorGameState)
-        return successorGameState.getScore()
+        # print("------------------------------------")
+        # print(successorGameState)
+        # print(newPos)
+        # print(newFood)
+        # print(newGhostStates)
+        # print(newScaredTimes)
+
+        manhatFood = 1
+        manhatGhost = 1
+
+        #foodList = newFood.asList()
+        for food in newFood:
+          temp = (abs(newPos[0] - food[0]) + abs(newPos[1] - food[1]))
+          manhatFood = min(temp, manhatFood) 
+
+        print("Manhat dist to food is ", manhatFood)
+
+        ghostList = [s.getPosition() for s in newGhostStates]
+
+        for ghost in ghostList:
+          manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
+
+        if (manhatGhost <= 2):
+          print("NEARING GHOST")
+          return 0
+
+        print(manhatFood)
+        print(manhatGhost)
+        print("------")
+
+        return 10*(1/manhatFood) + 0.1*manhatGhost + successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
