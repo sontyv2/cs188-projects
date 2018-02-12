@@ -116,21 +116,24 @@ class ReflexAgent(Agent):
 
 
 
-        print("------")
+        # print("------")
         # print(newPos)
         # print(manhatFood)
         # print(manhatGhost)
         # print(food_count)
         # print(successorGameState.getScore())
 
-        if manhatFood == 0:
-          manhatFood = 0.0001 # avoid divide by zero error
+        # if manhatFood == 0:
+        #   manhatFood = 0.0001 # avoid divide by zero error
 
 
-        # want score to be nearest food / nearest ghost  
-        score = 0.5*manhatGhost + 1/manhatFood + 0.5 * successorGameState.getScore()
-        print("score is ", score)
-        print("------")
+        # want score to be nearest food / nearest ghost 
+        # divide by 1 + manhatFood to avoid divide by 0 error
+        
+        
+        score = 0.5*manhatGhost + 1/(1 + manhatFood) + 0.5 * successorGameState.getScore()
+        # print("score is ", score)
+        # print("------")
 
         return score
 
@@ -271,7 +274,113 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def value(gameState):
+
+          numAgents = gameState.getNumAgents()
+
+          self.index = (self.index + 1) % numAgents
+          # print("current agent is: ", self.index)
+          # print("current depth is: ", self.depth)
+          if (self.depth <= 0 and self.index == 0) or (gameState.isWin() or gameState.isLose()):
+            ret = self.evaluationFunction(gameState) 
+            # print("evaluated: ", ret)
+            return ret 
+
+
+
+          if self.index == 0:
+            #next agent is pacman
+            return maxValue(gameState, alpha, beta)[0]
+          else:
+            return minValue(gameState, alpha, beta)[0]
+
+
+        def maxValue(gameState, alpha, beta):
+          self.depth -= 1
+          v = float("-inf")
+          bestAction = None
+
+          legalActions = gameState.getLegalActions(self.index)
+          # print("LEGAL ACTIONS: ", legalActions)
+
+          curr_idx = self.index
+          curr_depth = self.depth
+
+          for action in legalActions: # analogous to for each successor of state
+
+            successorState = gameState.generateSuccessor(self.index, action)
+            # print("action in maxvalue is: ", action)
+            successorValue = value(successorState)
+
+            if (successorValue > v):
+              v = successorValue
+              bestAction = action
+
+            if v > beta:
+              self.index = curr_idx
+              self.depth = curr_depth
+              return (v, bestAction, alpha)
+
+            alpha = max(alpha, v)
+
+            self.index = curr_idx
+            self.depth = curr_depth
+
+            # print("max value of going ", action, " is ", v)
+            # print("\n")
+
+
+          return (v, bestAction, alpha)
+
+
+        def minValue(gameState, alpha, beta):
+          v = float("+inf")
+          bestAction = None
+
+          legalActions = gameState.getLegalActions(self.index)
+          # print("LEGAL ACTIONS: ", legalActions)
+
+          curr_idx = self.index
+          curr_depth = self.depth
+          for action in legalActions: # analogous to for each successor of state
+
+            successorState = gameState.generateSuccessor(self.index, action)
+            # print("action in minvalue is: ", action)
+
+            # numAgents = gameState.getNumAgents()
+            successorValue = value(successorState)
+            if (successorValue < v):
+              v = successorValue
+              bestAction = action
+
+            if v < alpha:
+              self.index = curr_idx
+              self.depth = curr_depth
+              return (v, bestAction, beta)
+
+            beta = min(beta, v)
+
+            self.index = curr_idx
+            self.depth = curr_depth
+
+            # print("min value of going ", action, " is ", successorValue)
+            # print("\n")
+          return (v, bestAction, beta)
+
+
+        # print("----------------------------")
+
+        alpha = float("-inf")
+        beta = float("+inf")
+        curr_depth = self.depth
+        v = maxValue(gameState, alpha, beta)[1]
+        self.index = 0
+        self.depth = curr_depth
+
+        return v
+
+
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
