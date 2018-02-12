@@ -83,15 +83,12 @@ class ReflexAgent(Agent):
         # print(newGhostStates)
         # print(newScaredTimes)
 
-        manhatFood = 1
+        #manhatFood = float("inf")
         manhatGhost = 1
+        food_count = successorGameState.getNumFood()
+        #          temp = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
 
-        #foodList = newFood.asList()
-        for food in newFood:
-          temp = (abs(newPos[0] - food[0]) + abs(newPos[1] - food[1]))
-          manhatFood = min(temp, manhatFood) 
-
-        print("Manhat dist to food is ", manhatFood)
+      #HOW THE FUCK DO YOU LOOP THROUGH THE FOOD LIST THIS IS BULLSHIT FUCK U 188
 
         ghostList = [s.getPosition() for s in newGhostStates]
 
@@ -99,14 +96,19 @@ class ReflexAgent(Agent):
           manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
 
         if (manhatGhost <= 2):
-          print("NEARING GHOST")
           return 0
 
-        print(manhatFood)
-        print(manhatGhost)
+        print("------")
+        # print(newPos)
+        # print(manhatFood)
+        # print(manhatGhost)
+        # print(food_count)
+        # print(successorGameState.getScore())
+        score = 0.1*manhatGhost + 1/food_count + successorGameState.getScore()
+        print("score is ", score)
         print("------")
 
-        return 10*(1/manhatFood) + 0.1*manhatGhost + successorGameState.getScore()
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """
