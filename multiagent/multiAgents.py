@@ -76,25 +76,16 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        # print("------------------------------------")
-        # print(successorGameState)
-        # print(newPos)
+
         print('NEWFOOD')
         print(newFood)
-        # print(newGhostStates)
-        # print(newScaredTimes)
 
-        #manhatFood = float("inf")
-        # manhatGhost = 1
         manhatGhost = float("inf")
         food_count = successorGameState.getNumFood()
-        #          temp = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
-
-      #HOW THE FUCK DO YOU LOOP THROUGH THE FOOD LIST THIS IS BULLSHIT FUCK U 188
+        print("food count: ", food_count)
 
         ghostList = [s.getPosition() for s in newGhostStates]
 
-        
         for ghost in ghostList:
           # manhatGhost = sum of ghost distances
           # manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
@@ -112,26 +103,13 @@ class ReflexAgent(Agent):
         for index in newFood.asList():
           x, y = index
           manhatFood = min(manhatFood, abs(newPos[0] - x) + abs(newPos[1] - y))
-
-
-
-
-        # print("------")
-        # print(newPos)
-        # print(manhatFood)
-        # print(manhatGhost)
-        # print(food_count)
-        # print(successorGameState.getScore())
-
-        # if manhatFood == 0:
-        #   manhatFood = 0.0001 # avoid divide by zero error
-
-
-        # want score to be nearest food / nearest ghost 
-        # divide by 1 + manhatFood to avoid divide by 0 error
         
-        
-        score = 0.5*manhatGhost + 1/(1 + manhatFood) + 0.5 * successorGameState.getScore()
+        manhatGhost = min(manhatGhost, 5)
+        print(0.5*manhatGhost)
+        print(1/(1+manhatFood))
+        print(0.5*successorGameState.getScore())
+
+        score = 0.01*manhatGhost + 1/(0.001 + manhatFood) + (0.1 * successorGameState.getScore())
         # print("score is ", score)
         # print("------")
 
