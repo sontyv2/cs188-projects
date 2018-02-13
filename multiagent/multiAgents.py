@@ -379,13 +379,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           numAgents = gameState.getNumAgents()
 
           self.index = (self.index + 1) % numAgents
-          print("current agent is: ", self.index)
-          print("current depth is: ", self.depth)
+          # print("current agent is: ", self.index)
+          # print("current depth is: ", self.depth)
           if (self.depth <= 0 and self.index == 0) or (gameState.isWin() or gameState.isLose()):
             # assumes evalFn smart enough to return
             # positive inf for win, and negative inf for lose
             ret = self.evaluationFunction(gameState) 
-            print("evaluated: ", ret)
+            # print("evaluated: ", ret)
             return ret 
 
           if self.index == 0:
@@ -401,7 +401,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           bestAction = None
 
           legalActions = gameState.getLegalActions(self.index)
-          print("LEGAL ACTIONS: ", legalActions)
+          # print("LEGAL ACTIONS: ", legalActions)
 
           curr_idx = self.index
           curr_depth = self.depth
@@ -409,7 +409,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           for action in legalActions: # analogous to for each successor of state
 
             successorState = gameState.generateSuccessor(self.index, action)
-            print("action in maxvalue is: ", action)
+            # print("action in maxvalue is: ", action)
             successorValue = value(successorState)
 
             if (successorValue > v):
@@ -419,8 +419,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             self.index = curr_idx
             self.depth = curr_depth
 
-            print("max value of going ", action, " is ", v)
-            print("\n")
+            # print("max value of going ", action, " is ", v)
+            # print("\n")
 
 
           return (v, bestAction)
@@ -431,7 +431,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           bestAction = None
 
           legalActions = gameState.getLegalActions(self.index)
-          print("LEGAL ACTIONS: ", legalActions)
+          # print("LEGAL ACTIONS: ", legalActions)
 
           curr_idx = self.index
           curr_depth = self.depth
@@ -441,7 +441,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           for action in legalActions: # analogous to for each successor of state
 
             successorState = gameState.generateSuccessor(self.index, action)
-            print("action in expvalue is: ", action)
+            # print("action in expvalue is: ", action)
 
             v += probability * value(successorState)
 
@@ -454,12 +454,12 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             self.index = curr_idx
             self.depth = curr_depth
 
-          print("exp value of going is ", v)
-          print("\n")
+          # print("exp value of going is ", v)
+          # print("\n")
           return (v, bestAction)
 
 
-        print("----------------------------")
+        # print("----------------------------")
 
         curr_depth = self.depth
         v = maxValue(gameState)[1]
@@ -467,7 +467,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         self.depth = curr_depth
 
         return v
-
         
 
 def betterEvaluationFunction(currentGameState):
@@ -478,7 +477,53 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    "*** YOUR CODE HERE ***"
+
+    # print('NEWFOOD')
+    # print(newFood)
+
+    manhatGhost = float("inf")
+    food_count = currentGameState.getNumFood()
+    # print("food count: ", food_count)
+
+    ghostList = [s.getPosition() for s in newGhostStates]
+
+    for ghost in ghostList:
+      # manhatGhost = sum of ghost distances
+      # manhatGhost += (abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
+
+      # manhatGhost = closest ghost distance
+      manhatGhost = min(manhatGhost, abs(newPos[0] - ghost[0]) + abs(newPos[1] - ghost[1]))
+
+    # don't get too close to ghost
+    if (manhatGhost <= 2):
+      return 0
+
+    # find nearest food
+    manhatFood = float("inf")
+    # for x in len(newFood):
+    #   for y in len(newFood[0]):
+    for index in newFood.asList():
+      x, y = index
+      manhatFood = min(manhatFood, abs(newPos[0] - x) + abs(newPos[1] - y))
+    
+    manhatGhost = min(manhatGhost, 5)
+    # print(0.5*manhatGhost)
+    # print(1/(1+manhatFood))
+    # print(0.5*successorGameState.getScore())
+
+    score = 0.01*manhatGhost + 1/(0.001 + manhatFood) + (0.1 * currentGameState.getScore())
+    # print("score is ", score)
+    # print("------")
+    return score
+
+
+    
 
 # Abbreviation
 better = betterEvaluationFunction
