@@ -105,9 +105,9 @@ class ReflexAgent(Agent):
           manhatFood = min(manhatFood, abs(newPos[0] - x) + abs(newPos[1] - y))
         
         manhatGhost = min(manhatGhost, 5)
-        print(0.5*manhatGhost)
-        print(1/(1+manhatFood))
-        print(0.5*successorGameState.getScore())
+        # print(0.5*manhatGhost)
+        # print(1/(1+manhatFood))
+        # print(0.5*successorGameState.getScore())
 
         score = 0.01*manhatGhost + 1/(0.001 + manhatFood) + (0.1 * successorGameState.getScore())
         # print("score is ", score)
@@ -252,7 +252,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        def value(gameState):
+        def value(gameState, alpha, beta):
 
           numAgents = gameState.getNumAgents()
 
@@ -268,6 +268,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
           if self.index == 0:
             #next agent is pacman
+
             return maxValue(gameState, alpha, beta)[0]
           else:
             return minValue(gameState, alpha, beta)[0]
@@ -288,7 +289,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             successorState = gameState.generateSuccessor(self.index, action)
             # print("action in maxvalue is: ", action)
-            successorValue = value(successorState)
+            successorValue = value(successorState, alpha, beta)
 
             if (successorValue > v):
               v = successorValue
@@ -326,7 +327,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             # print("action in minvalue is: ", action)
 
             # numAgents = gameState.getNumAgents()
-            successorValue = value(successorState)
+            successorValue = value(successorState, alpha, beta)
             if (successorValue < v):
               v = successorValue
               bestAction = action
