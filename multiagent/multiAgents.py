@@ -374,7 +374,101 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def value(gameState):
+
+          numAgents = gameState.getNumAgents()
+
+          self.index = (self.index + 1) % numAgents
+          print("current agent is: ", self.index)
+          print("current depth is: ", self.depth)
+          if (self.depth <= 0 and self.index == 0) or (gameState.isWin() or gameState.isLose()):
+            # assumes evalFn smart enough to return
+            # positive inf for win, and negative inf for lose
+            ret = self.evaluationFunction(gameState) 
+            print("evaluated: ", ret)
+            return ret 
+
+          if self.index == 0:
+            #next agent is pacman
+            return maxValue(gameState)[0]
+          else:
+            return expValue(gameState)[0]
+
+
+        def maxValue(gameState):
+          self.depth -= 1
+          v = float("-inf")
+          bestAction = None
+
+          legalActions = gameState.getLegalActions(self.index)
+          print("LEGAL ACTIONS: ", legalActions)
+
+          curr_idx = self.index
+          curr_depth = self.depth
+
+          for action in legalActions: # analogous to for each successor of state
+
+            successorState = gameState.generateSuccessor(self.index, action)
+            print("action in maxvalue is: ", action)
+            successorValue = value(successorState)
+
+            if (successorValue > v):
+              v = successorValue
+              bestAction = action
+
+            self.index = curr_idx
+            self.depth = curr_depth
+
+            print("max value of going ", action, " is ", v)
+            print("\n")
+
+
+          return (v, bestAction)
+
+
+        def expValue(gameState):
+          v = 0.0
+          bestAction = None
+
+          legalActions = gameState.getLegalActions(self.index)
+          print("LEGAL ACTIONS: ", legalActions)
+
+          curr_idx = self.index
+          curr_depth = self.depth
+
+          probability = 1.0/len(legalActions)
+
+          for action in legalActions: # analogous to for each successor of state
+
+            successorState = gameState.generateSuccessor(self.index, action)
+            print("action in expvalue is: ", action)
+
+            v += probability * value(successorState)
+
+            # numAgents = gameState.getNumAgents()
+            # successorValue = value(successorState)
+            # if (successorValue < v):
+            #   v = successorValue
+            #   bestAction = action
+
+            self.index = curr_idx
+            self.depth = curr_depth
+
+          print("exp value of going is ", v)
+          print("\n")
+          return (v, bestAction)
+
+
+        print("----------------------------")
+
+        curr_depth = self.depth
+        v = maxValue(gameState)[1]
+        self.index = 0
+        self.depth = curr_depth
+
+        return v
+
+        
 
 def betterEvaluationFunction(currentGameState):
     """
