@@ -417,12 +417,13 @@ def betterEvaluationFunction(currentGameState):
       manhatCapsule *= 10
 
     if newScaredTimes[0] > manhatGhost:
-      manhatGhost = 10 * manhatGhost
+      manhatGhost = 20 * manhatGhost
 
     manhatFood = float("inf")
     for index in newFood.asList():
       x, y = index
       manhatFood = min(manhatFood, abs(newPos[0] - x) + abs(newPos[1] - y))
+  
 
     score = (0.1 * 1/manhatCapsule) + 0.01*manhatGhost + 1/(0.00001 + manhatFood) + (0.1 * currentGameState.getScore())
 
