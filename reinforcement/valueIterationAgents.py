@@ -59,16 +59,26 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
         self.runValueIteration()
 
+        # added code
+        # self.count =
+
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
         # view mdp.py to see functions I am calling. 
         # not 100% sure why it doesn't recognize mdp. functions
 
-        while self.iterations >= 0:
-          self.iterations -= 1
-          for s in mdp.getStates():
-            values[s] = max([computeQValueFromValues(s, action) for action in mdp.getPossibleActions(s)])
+        # while self.iterations >= 0:
+        # if self.iterations == 
+        if self.iterations == 0:
+          return values
+        self.iterations -= 1
+        for s in self.mdp.getStates():
+          posaction = self.mdp.getPossibleActions(s)
+          if len(posaction) == 0:
+            self.values[s] = self.getValue(s)
+          else:
+            self.values[s] = max([self.computeQValueFromValues(s, action) for action in posaction])
 
 
     def getValue(self, state):
@@ -85,8 +95,8 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         val = 0
-        for nextState, prob in mdp.getTransitionStatesAndProbs(state, action):
-          val += prob * mdp.getReward(state, action, nextState) + self.discount * self.values[nextState]
+        for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+          val += prob * self.mdp.getReward(state, action, nextState) + self.discount * self.values[nextState]
         return val 
         
 
@@ -102,7 +112,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         bestVal = float("-inf")
         bestAction = None
-        for action in mdp.getPossibleActions(state):
+        for action in self.mdp.getPossibleActions(state):
           val = self.computeQValueFromValues(state, action)
           if val > bestVal:
             bestVal = val
