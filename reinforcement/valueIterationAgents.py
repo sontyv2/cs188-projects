@@ -57,9 +57,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.discount = discount
         self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
-        self.count = 0
+        self.prevValues = util.Counter()
+        self.count = 1
+
         self.runValueIteration()
         # added code
+
+
         
 
     def runValueIteration(self):
@@ -68,20 +72,17 @@ class ValueIterationAgent(ValueEstimationAgent):
         # view mdp.py to see functions I am calling. 
         # not 100% sure why it doesn't recognize mdp. functions
 
-        # while self.iterations >= 0:
-        # if self.count == 0:
-        #   return self.values
-        #self.count += 1
+        while self.count <= self.iterations:
 
-        if self.count == self.iterations:
-          return self.values
-        
-        for s in self.mdp.getStates():
-          if self.mdp.isTerminal(s):
-            self.values[s] = self.getValue(s)
-          else:
-            self.values[s] = max([self.computeQValueFromValues(s, action) for action in self.mdp.getPossibleActions(s)])
-        self.count += 1
+          for s in self.mdp.getStates():
+
+            if self.mdp.isTerminal(s):
+              self.values[s] = self.getValue(s)
+            else:
+              self.values[s] = max([self.getQValue(s, action) for action in self.mdp.getPossibleActions(s)])
+
+          self.count += 1
+          self.prevValues = self.values
 
 
     def getValue(self, state):
@@ -99,7 +100,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         val = 0
         for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
-          val += prob * (self.mdp.getReward(state, action, nextState) + self.discount * self.values[nextState])
+          #if self.mdp.isTerminal(nextState):
+
+          val += prob * (self.mdp.getReward(state, action, nextState) + self.discount * self.prevValues[nextState])
         return val 
         
 
