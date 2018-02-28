@@ -69,9 +69,6 @@ class ValueIterationAgent(ValueEstimationAgent):
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-        # view mdp.py to see functions I am calling. 
-        # not 100% sure why it doesn't recognize mdp. functions
-
         while self.count <= self.iterations:
 
           for s in self.mdp.getStates():
@@ -82,7 +79,7 @@ class ValueIterationAgent(ValueEstimationAgent):
               self.values[s] = max([self.getQValue(s, action) for action in self.mdp.getPossibleActions(s)])
 
           self.count += 1
-          self.prevValues = self.values
+          self.prevValues = self.values.copy()
 
 
     def getValue(self, state):
@@ -165,6 +162,18 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        while self.count <= self.iterations:
+
+          for s in self.mdp.getStates():
+
+            if self.mdp.isTerminal(s):
+              self.values[s] = 0
+            else:
+              self.values[s] = max([self.getQValue(s, action) for action in self.mdp.getPossibleActions(s)])
+
+          self.count += 1
+          self.prevValues = self.values.copy()
+
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
