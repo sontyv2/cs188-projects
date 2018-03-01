@@ -61,14 +61,10 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.count = 1
 
         self.runValueIteration()
-        # added code
-
-
-        
+        # added code      
 
     def runValueIteration(self):
         # Write value iteration code here
-        "*** YOUR CODE HERE ***"
         while self.count <= self.iterations:
 
           for s in self.mdp.getStates():
