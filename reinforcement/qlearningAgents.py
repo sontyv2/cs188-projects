@@ -203,7 +203,7 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        return self.weights * self.featExtractor
+        return self.weights * self.featExtractor.getFeatures(state, action)
 
     def update(self, state, action, nextState, reward):
         """
@@ -217,10 +217,19 @@ class ApproximateQAgent(PacmanQAgent):
           difference = reward + self.discount * max(actionsForNextState) - self.getQValue(state, action)
         # want to do self.weights = self.prevWeights + self.alpha * difference * self.featExtractor
         # will use divideAll functionality in util.Counter() to multiply constants
-        coeff = 1 / (self.alpha * difference)
-        self.weights = self.prevWeights + self.featExtractor.divideAll(coeff)
-        
-        self.prevWeights = self.weights.copy()
+        alphaDiff = self.alpha * difference
+        if alphaDiff == 0:
+          self.weights = self.prevWeights
+        else:
+          print("self.featExtractor is " + str(self.featExtractor))
+          print("self.featExtractor.getFeatures is " + str(self.featExtractor.getFeatures(state, action)))
+          print("self.weights is " + str(self.weights))
+          print("self.prevWeights is " + str(self.prevWeights))
+          print("\n")
+          features = self.featExtractor.getFeatures(state, action)
+          for f in features:
+            self.weights[f] = self.prevWeights[f] + features[f] * alphaDiff
+          self.prevWeights = self.weights.copy()
 
     def final(self, state):
         "Called at the end of each game."
