@@ -32,10 +32,10 @@ def question3a(): #passing
     # If not possible, return 'NOT POSSIBLE'
     # Prefer the close exit (+1), risking the cliff (-10)
 
-def question3b():
-    answerDiscount = 0.3
-    answerNoise = 0
-    answerLivingReward = 4
+def question3b(): #passing
+    answerDiscount = 0.1
+    answerNoise = 0.1
+    answerLivingReward = 0.1
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
     # Prefer the close exit (+1), but avoiding the cliff (-10)
