@@ -215,19 +215,21 @@ class ApproximateQAgent(PacmanQAgent):
           difference = reward - self.getQValue(state, action)
         else:
           difference = (reward + self.discount * max(actionsForNextState)) - self.getQValue(state, action)
+
         alphaDiff = self.alpha * difference
         if alphaDiff == 0:
-          self.weights = self.prevWeights
+          self.weights = self.prevWeights.copy()
         else:
-          print("self.featExtractor is " + str(self.featExtractor))
-          print("self.featExtractor.getFeatures is " + str(self.featExtractor.getFeatures(state, action)))
-          print("self.weights is " + str(self.weights))
-          print("self.prevWeights is " + str(self.prevWeights))
-          print("\n")
+          # print("self.featExtractor is " + str(self.featExtractor))
+          # print("self.featExtractor.getFeatures is " + str(self.featExtractor.getFeatures(state, action)))
+          # print("self.weights is " + str(self.weights))
+          # print("self.prevWeights is " + str(self.prevWeights))
+          # print("\n")
           features = self.featExtractor.getFeatures(state, action)
           for f in features:
-            self.weights[f] = self.prevWeights[f] + features[f] * alphaDiff
-          self.prevWeights = self.weights.copy()
+            self.weights[f] = self.prevWeights[f] + (alphaDiff * features[f])
+        self.prevWeights = self.weights.copy()
+        #print("self.weights is " + str(self.weights));
 
     def final(self, state):
         "Called at the end of each game."
