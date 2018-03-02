@@ -198,17 +198,15 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
         # Compute predecessors of all states
         # dictionary key = state : value = set of predecessors
-        predecessors = {}
+        predecessors = {key: set() for key in self.mdp.getStates()}
+
         for s in self.mdp.getStates():
           for action in self.mdp.getPossibleActions(s):
             for nextState, probability in self.mdp.getTransitionStatesAndProbs(s, action):
-              if nextState in predecessors:
+              if nextState in predecessors and probability > 0.0 and nextState != s:
                 predecessors[nextState].add(s)
-              else:
-                predecessors[nextState] = set([s]) # new set with state
 
         print("predecessors is " + str(predecessors))
 
@@ -218,26 +216,41 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         for s in self.mdp.getStates():
           if not self.mdp.isTerminal(s):
             diff = abs(self.values[s] - max([self.getQValue(s, action) for action in self.mdp.getPossibleActions(s)]))
-            pq.push(s, -diff)
+            pq.update(s, -diff)
+            print("pushed to queue: ",s)
+            print("with diff", -diff)
+
+        print("iterations is ", self.iterations)
 
         for i in range(self.iterations):
+          print("POPPING")
           if pq.isEmpty():
             return
           s = pq.pop()
+          print("popped off: ", s)
 
           if not self.mdp.isTerminal(s):
             print("state is " + str(s))
             print("values before: " + str(self.values[s]))
-            self.values[s] = max([self.getQValue(s, action) for action in self.mdp.getPossibleActions(s)])
+            self.values[s] = self.getQValue(s, self.getAction(s))
             print("values after: " + str(self.values[s]))
             print("\n")
 
 
-          for p in predecessors[s]:
-            if not self.mdp.isTerminal(p):
+            for p in predecessors[s]:
+              # if not self.mdp.isTerminal(p):
+              print("p is ", p)
+              print("s is", s)
+              print("q val of p", max([self.getQValue(p, action) for action in self.mdp.getPossibleActions(p)]))
+              print("self value of p", self.values[p])
               diff = abs(self.values[p] - max([self.getQValue(p, action) for action in self.mdp.getPossibleActions(p)]))
+              
+              print("diff is ", diff)
+
               if diff > self.theta:
                 pq.update(p, -diff)
-
+                
+              print("pushed to queue: ",p)
+              print("with diff", -diff)
 
                 
