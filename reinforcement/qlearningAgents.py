@@ -214,9 +214,7 @@ class ApproximateQAgent(PacmanQAgent):
         if len(actionsForNextState) == 0:
           difference = reward - self.getQValue(state, action)
         else:
-          difference = reward + self.discount * max(actionsForNextState) - self.getQValue(state, action)
-        # want to do self.weights = self.prevWeights + self.alpha * difference * self.featExtractor
-        # will use divideAll functionality in util.Counter() to multiply constants
+          difference = (reward + self.discount * max(actionsForNextState)) - self.getQValue(state, action)
         alphaDiff = self.alpha * difference
         if alphaDiff == 0:
           self.weights = self.prevWeights
