@@ -223,7 +223,25 @@ def fillObsCPT(bayesNet, gameState):
     bottomLeftPos, topLeftPos, bottomRightPos, topRightPos = gameState.getPossibleHouses()
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for housePos in gameState.getPossibleHouses():
+        for wallPos in gameState.getHouseWalls(housePos):
+            for wallColor in OBS_VALS: # wall color
+                for ghostHousePos in HOUSE_VALS:
+                    for foodHousePos in HOUSE_VALS:
+                        assignment = (wallColor, ghostHousePos, foodHousePos)
+
+
+# TODO: OBS_VAR as a variable doesn't exist i made it up
+                        obsFactor.setProbability({OBS_VAR: assignment}, bayesNet.getCPT(wallColor) * bayesNet.getCPT(ghostHousePos) * bayesNet.getCPT(foodHousePos))
+                        bayesNet.setCPT(OBS_VAR, obsFactor)
+
+            # obsVar = OBS_VAR_TEMPLATE % wallPos
+            # print(obsVar)
+
+
+    # yFactor.setProbability({Y_POS_VAR: LEFT_BOTTOM_VAL}, PROB_ONLY_LEFT_BOTTOM)
+
+    # 
 
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     """
