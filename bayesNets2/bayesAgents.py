@@ -67,7 +67,7 @@ def addEdges(edges, fromVar, toVar):
     """
     for f in fromVar:
         for to in toVar:
-            edges.append((fromVar, toVar))
+            edges.append((f, to))
     return edges
 
 
@@ -113,15 +113,15 @@ def constructBayesNet(gameState):
             obsVars.append(obsVar)
 
 
-    edges = addEdges(edges, X_POS_VALS, HOUSE_VALS)
-    edges = addEdges(edges, Y_POS_VALS, HOUSE_VALS)
+    edges = addEdges(edges, X_POS_VALS, HOUSE_VARS)
+    edges = addEdges(edges, Y_POS_VALS, HOUSE_VARS)
     edges = addEdges(edges, HOUSE_VALS, OBS_VALS)
 
     variableDomainsDict[X_POS_VAR] = X_POS_VALS
     variableDomainsDict[Y_POS_VAR] = Y_POS_VALS
-    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VARS # TODO: should be just HOUSE_VAR?
-    variableDomainsDict[HOUSE_VAR] = HOUSE_VALS # TODO: HOUSE_VAR doesn't exist?
-
+    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS 
+    variableDomainsDict[GHOST_HOUSE_VAR] = HOUSE_VALS 
+    variableDomainsDict[OBS_VAR_TEMPLATE] = OBS_VALS
 
 
     "*** END YOUR CODE HERE ***"
