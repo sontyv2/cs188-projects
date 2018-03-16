@@ -60,6 +60,17 @@ ENTER_LEFT = 0
 ENTER_RIGHT = 1
 EXPLORE = 2
 
+def addEdges(edges, fromVar, toVar):
+    """
+    Helper function to append all possible edges to `edges` with every combination
+    of fromVar and toVar.
+    """
+    for f in fromVar:
+        for to in toVar:
+            edges.append((fromVar, toVar))
+    return edges
+
+
 def constructBayesNet(gameState):
     """
     Question 1: Bayes net structure
@@ -96,8 +107,24 @@ def constructBayesNet(gameState):
     variableDomainsDict = {}
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for housePos in gameState.getPossibleHouses():
+        for obsPos in gameState.getHouseWalls(housePos):
+            obsVar = OBS_VAR_TEMPLATE % obsPos
+            obsVars.append(obsVar)
 
+
+    edges = addEdges(edges, X_POS_VALS, HOUSE_VALS)
+    edges = addEdges(edges, Y_POS_VALS, HOUSE_VALS)
+    edges = addEdges(edges, HOUSE_VALS, OBS_VALS)
+
+    variableDomainsDict[X_POS_VAR] = X_POS_VALS
+    variableDomainsDict[Y_POS_VAR] = Y_POS_VALS
+    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VARS # TODO: should be just HOUSE_VAR?
+    variableDomainsDict[HOUSE_VAR] = HOUSE_VALS # TODO: HOUSE_VAR doesn't exist?
+
+
+
+    "*** END YOUR CODE HERE ***"
     variables = [X_POS_VAR, Y_POS_VAR] + HOUSE_VARS + obsVars
     net = bn.constructEmptyBayesNet(variables, edges, variableDomainsDict)
     return net, obsVars
