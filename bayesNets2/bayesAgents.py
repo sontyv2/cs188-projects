@@ -113,15 +113,14 @@ def constructBayesNet(gameState):
             obsVars.append(obsVar)
 
 
-    edges = addEdges(edges, X_POS_VALS, HOUSE_VARS)
-    edges = addEdges(edges, Y_POS_VALS, HOUSE_VARS)
-    edges = addEdges(edges, HOUSE_VALS, OBS_VALS)
+    edges = addEdges(edges, [X_POS_VAR], HOUSE_VARS)
+    edges = addEdges(edges, [Y_POS_VAR], HOUSE_VARS)
+    edges = addEdges(edges, HOUSE_VARS, obsVars)
 
     variableDomainsDict[X_POS_VAR] = X_POS_VALS
     variableDomainsDict[Y_POS_VAR] = Y_POS_VALS
-    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS 
-    variableDomainsDict[GHOST_HOUSE_VAR] = HOUSE_VALS 
-    variableDomainsDict[OBS_VAR_TEMPLATE] = OBS_VALS
+    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS
+    variableDomainsDict[GHOST_HOUSE_VAR] = HOUSE_VALS
 
 
     "*** END YOUR CODE HERE ***"
@@ -152,9 +151,14 @@ def fillYCPT(bayesNet, gameState):
     probabilities down by hand.
     """
 
+    #BOTH_TOP_VAL, BOTH_BOTTOM_VAL, LEFT_TOP_VAL, LEFT_BOTTOM_VAL
+
     yFactor = bn.Factor([Y_POS_VAR], [], bayesNet.variableDomainsDict())
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    yFactor.setProbability({Y_POS_VAR: BOTH_TOP_VAL}, PROB_BOTH_TOP)
+    yFactor.setProbability({Y_POS_VAR: BOTH_BOTTOM_VAL}, PROB_BOTH_BOTTOM)
+    yFactor.setProbability({Y_POS_VAR: LEFT_TOP_VAL}, PROB_ONLY_LEFT_TOP)
+    yFactor.setProbability({Y_POS_VAR: LEFT_BOTTOM_VAL}, PROB_ONLY_LEFT_BOTTOM)
+
     bayesNet.setCPT(Y_POS_VAR, yFactor)
 
 def fillHouseCPT(bayesNet, gameState):
