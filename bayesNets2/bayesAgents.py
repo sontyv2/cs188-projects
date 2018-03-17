@@ -60,6 +60,9 @@ ENTER_LEFT = 0
 ENTER_RIGHT = 1
 EXPLORE = 2
 
+# ADDED
+OBS_VAR = "obsVar"
+
 def addEdges(edges, fromVar, toVar):
     """
     Helper function to append all possible edges to `edges` with every combination
@@ -218,6 +221,9 @@ def fillObsCPT(bayesNet, gameState):
     vaild probability distribution for this case. To conform with the
     autograder, use the *food house distribution* over colors when both the food
     house and ghost house are assigned to the same cell.
+
+    4 * 7 observation because 4 potential house locations and each house location
+    has 7 walls.
     """
 
     bottomLeftPos, topLeftPos, bottomRightPos, topRightPos = gameState.getPossibleHouses()
@@ -229,9 +235,10 @@ def fillObsCPT(bayesNet, gameState):
                 for ghostHousePos in HOUSE_VALS:
                     for foodHousePos in HOUSE_VALS:
                         assignment = (wallColor, ghostHousePos, foodHousePos)
+ 
+                        obsFactor = bn.Factor([OBS_VAR], [], bayesNet.variableDomainsDict())
 
-
-# TODO: OBS_VAR as a variable doesn't exist i made it up
+# TODO: OBS_VAR as a variable doesn't exist i made it up and defined it at the top
                         obsFactor.setProbability({OBS_VAR: assignment}, bayesNet.getCPT(wallColor) * bayesNet.getCPT(ghostHousePos) * bayesNet.getCPT(foodHousePos))
                         bayesNet.setCPT(OBS_VAR, obsFactor)
 
@@ -242,6 +249,7 @@ def fillObsCPT(bayesNet, gameState):
     # yFactor.setProbability({Y_POS_VAR: LEFT_BOTTOM_VAL}, PROB_ONLY_LEFT_BOTTOM)
 
     # 
+    # bayesNet.setCPT(Y_POS_VAR, yFactor)
 
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     """

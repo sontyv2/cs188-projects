@@ -101,7 +101,35 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    joinVariableDomainsDict = {}
+    joinProbability = 1;
+    
+    setOfSeenInputFactors = set()
+
+    setTotalConditioned = set()
+
+    setTotalUnconditioned = set()
+    for s in setsOfUnconditioned:
+        setTotalUnconditioned.union(s.copy())
+
+    for factor in factors:
+        joinVariableDomainsDict = factor.variableDomainsDict().copy()
+
+        # joinFactors will only allow unconditionedVariables to appear in 
+        # one input factor (so their join is well defined).
+
+        if factor in setOfSeenInputFactors:
+            return
+        elif factor in setsOfUnconditioned:
+            setofSeenInputFactors.add(factor)
+        
+        joinProbability *= factor.getProbability()
+        setTotalConditioned.add(factor.conditionedVariables)
+
+    joinFactor = bn.Factor(setTotalUnconditioned, setTotalConditioned, joinVariableDomainsDict)
+    joinFactor.setProbability(joinProbability)
+    return joinFactor
+
 
 
 def eliminateWithCallTracking(callTrackingList=None):
@@ -150,7 +178,26 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        # Unconditioned variables are X in P(X|Z) (before the bar)
+        eliminateVariableDomainsDict = factor.variableDomainsDict()
+        setTotalUnconditioned = factor.unconditionedVariables().remove(eliminationVariable)
+        
+        # TODO: how to create a new factor
+        eliminationFactor = bayesNet.Factor(setTotalUnconditioned, factor.conditionedVariables(), eliminationVariableDomainsDict)
+        
+
+        for possibleAssignment in factor.getAllPossibleAssignmentDicts():
+
+            if eliminationVariable in possibleAssignment:
+                
+                sumProbability = 0
+                for domainVariable in eliminationVariable.domain(): #TODO get domain
+                    sumProbability += factor.getProbability(possibleAssignment)
+                eliminationFactor.setProbability(possibleAssignment, sumProbability)
+        return eliminationFactor
+
+
 
     return eliminate
 
@@ -205,5 +252,16 @@ def normalize(factor):
                             str(factor))
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    # If the sum of probabilities in the input factor is 0,
+    # you should return None.
+    
+
+
+    normalizeConditionalVariables = factor.conditionedVariables()
+    for unconditionedVariable in factor.unconditionedVariables():
+        if domain of unconditionedVariable == 1: # TODO: fix
+            normalizeConditionalVariables.add(unconditionedVariable)
+
+    normalizeFactor = bayesNet.Factor(factor.unconditionedVariables(), factor.conditionedVariables(), factor.variableDomainsDict())
+        
