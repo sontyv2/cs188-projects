@@ -101,7 +101,7 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
 
 
 def eliminateWithCallTracking(callTrackingList=None):
@@ -150,7 +150,27 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        newVars = factor.unconditionedVariables()
+        newVars.remove(eliminationVariable)
+        newFactor = Factor(newVars, factor.conditionedVariables(), factor.variableDomainsDict())
+
+        #newProbs = dict([(var, 0) for var in newVars])
+        newProbs = dict()
+
+        print(factor.unconditionedVariables())
+        print(factor.conditionedVariables())
+
+        for f in factor.getAllPossibleAssignmentDicts():
+            print(f)
+            if eliminationVariable in f:
+                newDict = f.copy().pop(eliminationVariable)
+                if newDict not in newProbs:
+                    newProbs[newDict] = 0
+                else:
+                    print("adding yay")
+                    newProbs[newDict] += factor.getProbability(f)
+
+        return newFactor
 
     return eliminate
 

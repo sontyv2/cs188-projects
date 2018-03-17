@@ -151,8 +151,6 @@ def fillYCPT(bayesNet, gameState):
     probabilities down by hand.
     """
 
-    #BOTH_TOP_VAL, BOTH_BOTTOM_VAL, LEFT_TOP_VAL, LEFT_BOTTOM_VAL
-
     yFactor = bn.Factor([Y_POS_VAR], [], bayesNet.variableDomainsDict())
     yFactor.setProbability({Y_POS_VAR: BOTH_TOP_VAL}, PROB_BOTH_TOP)
     yFactor.setProbability({Y_POS_VAR: BOTH_BOTTOM_VAL}, PROB_BOTH_BOTTOM)
@@ -223,7 +221,11 @@ def fillObsCPT(bayesNet, gameState):
     bottomLeftPos, topLeftPos, bottomRightPos, topRightPos = gameState.getPossibleHouses()
 
     "*** YOUR CODE HERE ***"
+    # for housePos in gameState.getPossibleHouses():
+    # 	for walls in gameState.getWalls(housePos):
     util.raiseNotDefined()
+		
+
 
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     """
