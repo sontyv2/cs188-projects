@@ -230,17 +230,32 @@ def fillObsCPT(bayesNet, gameState):
 
     "*** YOUR CODE HERE ***"
     for housePos in gameState.getPossibleHouses():
-        for wallPos in gameState.getHouseWalls(housePos):
-            for wallColor in OBS_VALS: # wall color
-                for ghostHousePos in HOUSE_VALS:
-                    for foodHousePos in HOUSE_VALS:
-                        assignment = (wallColor, ghostHousePos, foodHousePos)
- 
-                        obsFactor = bn.Factor([OBS_VAR], [], bayesNet.variableDomainsDict())
+        for obsPos in gameState.getHouseWalls(housePos):
+            obsVar = OBS_VAR_TEMPLATE % obsPos
+            # TODO: variableDomainsDict() doesn't have all the variables -- missing obsVar
+            obsFactor = bn.Factor([obsVar], [FOOD_HOUSE_VAR, GHOST_HOUSE_VAR], bayesNet.variableDomainsDict())
+            # set probability of P(obsVar | FOOD_HOUSE, GHOST_HOUSE) = P(obsVar, FOOD_HOUSE, GHOST_HOUSE) * P(FOOD_HOUSE, GHOST_HOUSE)
+            obsFactor.setProbability({obsVar: obsPos}, \
+                bayesNet.getProbability({obsVar: obsPos, FOOD_HOUSE_VAR: FOOD_LEFT_VAL, GHOST_HOUSE_VAR: GHOST_LEFT_VAL}) \
+                * bayesNet.getProbability({FOOD_HOUSE_VAR: FOOD_LEFT_VAL, GHOST_HOUSE_VAR: GHOST_LEFT_VAL}))
+            bayesNet.setCPT(obsVar, obsFactor)
 
-# TODO: OBS_VAR as a variable doesn't exist i made it up and defined it at the top
-                        obsFactor.setProbability({OBS_VAR: assignment}, bayesNet.getCPT(wallColor) * bayesNet.getCPT(ghostHousePos) * bayesNet.getCPT(foodHousePos))
-                        bayesNet.setCPT(OBS_VAR, obsFactor)
+
+
+
+
+
+
+#             for wallColor in OBS_VALS: # wall color
+#                 for ghostHousePos in HOUSE_VALS:
+#                     for foodHousePos in HOUSE_VALS:
+#                         assignment = (wallColor, ghostHousePos, foodHousePos)
+ 
+#                         obsFactor = bn.Factor([OBS_VAR], [], bayesNet.variableDomainsDict())
+
+# # TODO: OBS_VAR as a variable doesn't exist i made it up and defined it at the top
+#                         obsFactor.setProbability({OBS_VAR: assignment}, bayesNet.getCPT(wallColor) * bayesNet.getCPT(ghostHousePos) * bayesNet.getCPT(foodHousePos))
+#                         bayesNet.setCPT(OBS_VAR, obsFactor)
 
             # obsVar = OBS_VAR_TEMPLATE % wallPos
             # print(obsVar)

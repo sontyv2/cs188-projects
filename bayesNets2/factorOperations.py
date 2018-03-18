@@ -252,16 +252,16 @@ def normalize(factor):
                             str(factor))
 
     "*** YOUR CODE HERE ***"
-
+    util.raiseNotDefined()
     # If the sum of probabilities in the input factor is 0,
     # you should return None.
-    
 
 
+"""
     normalizeConditionalVariables = factor.conditionedVariables()
     for unconditionedVariable in factor.unconditionedVariables():
         if domain of unconditionedVariable == 1: # TODO: fix
             normalizeConditionalVariables.add(unconditionedVariable)
 
     normalizeFactor = bayesNet.Factor(factor.unconditionedVariables(), factor.conditionedVariables(), factor.variableDomainsDict())
-        
+    """    
