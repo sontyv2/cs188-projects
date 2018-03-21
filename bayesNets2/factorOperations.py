@@ -101,99 +101,25 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    joinVariableDomainsDict = {}
-    joinProbability = 1
-    
-    setOfSeenInputFactors = set()
 
-    setTotalConditioned = set()
+    joinUnconditioned = set()
+    joinConditioned = set()
+    joinVariableDomainsDict = factors[0].variableDomainsDict()
 
-    # setTotalUnconditioned = set()
-
-    # for s in setsOfUnconditioned:
-    #     setTotalUnconditioned = setTotalUnconditioned.union(s.copy())
 
     for factor in factors:
-        print("factor variable domains dict")
-        print(factor.variableDomainsDict)
-        joinVariableDomainsDict = factor.variableDomainsDict()
-        joinConditionedVariables = factor.conditionedVariables()
+        joinUnconditioned = joinUnconditioned.union(factor.unconditionedVariables())
+        joinConditioned = joinConditioned.union(factor.conditionedVariables())
 
+    joinConditioned = joinConditioned - joinConditioned.intersection(joinUnconditioned)
 
-        # joinVariableDomainsDict.union(setsOfUnconditioned)
+    joinFactor = Factor(joinUnconditioned, joinConditioned, joinVariableDomainsDict)
 
-###### include this again for variableDomainsDict
-        # for s in setTotalUnconditioned:
-        #     joinVariableDomainsDict.add(set(s))
-            ###########
-
-        # joinFactors will only allow unconditionedVariables to appear in 
-        # one input factor (so their join is well defined).
-
-        if factor in setOfSeenInputFactors:
-            return
-        # elif factor in setsOfUnconditioned:
-        # # elif factor in setTotalUnconditioned:
-        #     setofSeenInputFactors.add(factor)
-        
-        for assignmentDict in factor.getAllPossibleAssignmentDicts():
-            joinProbability *= factor.getProbability(assignmentDict)
-        
-        setTotalConditioned.add(factor.conditionedVariables)
-
-        print("LINE 131")
-
-        # print("setTotalUnconditioned: " + str(setTotalUnconditioned))
-        print("\n")
-        print("setTotalConditioned: " + str(setTotalConditioned))
-        print("\n")
-        print("joinVariableDomainsDict: " + str(joinVariableDomainsDict))
-        
-        print("LINE 133")
-        print("\n")
-
-        unconditionedIter = []
-        print("LINE 151")
-        for s in setsOfUnconditioned:
-            print(s)
-            unconditionedIter.extend(list(s))
-
-        
-        print("LINE 157")
-        # conditionedIter = []
-        # for s in setTotalConditioned:
-        #     print(s)
-        #     conditionedIter.extend(list(s))
-
-        print("unconditionedIter")
-        print(unconditionedIter)
-        print("\n")
-        # print("conditionedIter")
-        # print(conditionedIter)
-        print("\n")
-        print("joinVariableDomainsDict")
-        print(joinVariableDomainsDict)
-        print("\n")
-
-        
-        
-
-        print("unconditionedIter")
-        print(unconditionedIter)
-        print("\n")
-        # print("conditionedIter")
-        # print(conditionedIter)
-        print("\n")
-        print("joinVariableDomainsDict")
-        print(joinVariableDomainsDict)
-        print("\n")
-
-        # joinFactor = Factor(setTotalUnconditioned, setTotalConditioned, joinVariableDomainsDict)
-        
-    joinFactor = Factor(unconditionedIter, joinConditionedVariables, joinVariableDomainsDict)
-    print("Factor: " + str(joinFactor))
-
-    joinFactor.setProbability(joinProbability)
+    for assignment in joinFactor.getAllPossibleAssignmentDicts():
+        joinProbability = 1
+        for factor in factors:
+            joinProbability *= factor.getProbability(assignment)
+        joinFactor.setProbability(assignment, joinProbability)
 
     return joinFactor
 
