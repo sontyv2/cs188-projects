@@ -131,7 +131,24 @@ def inferenceByVariableEliminationWithCallTracking(callTrackingList=None):
             eliminationOrder = sorted(list(eliminationVariables))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # grab all factors where we know the evidence variables (to reduce the size of the tables)
+        currentFactorsList = bayesNet.getAllCPTsWithEvidence(evidenceDict)
+
+        # join all factors by variable
+        for eliminationVariable in eliminationOrder:
+            currentFactorsList, joinedFactor = joinFactorsByVariable(currentFactorsList, eliminationVariable)
+            
+            if len(joinedFactor.unconditionedVariables()) > 1:  
+                joinedFactor = eliminate(joinedFactor, eliminationVariable)
+                currentFactorsList.append(joinedFactor)
+
+        # currentFactorsList should contain the connected components of the graph now as factors, must join the connected components
+        fullJoint = joinFactors(currentFactorsList)
+
+        queryConditionedOnEvidence = normalize(fullJoint)
+        return queryConditionedOnEvidence
+
 
 
     return inferenceByVariableElimination
