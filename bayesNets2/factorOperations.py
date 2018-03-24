@@ -191,7 +191,7 @@ def eliminateWithCallTracking(callTrackingList=None):
         return newFactor
 
     return eliminate
-    
+
 eliminate = eliminateWithCallTracking()
 
 
@@ -243,10 +243,7 @@ def normalize(factor):
                             str(factor))
 
     "*** YOUR CODE HERE ***"
-    print("Factor is " + str(factor))
     normalizeVariableDomainsDict = factor.variableDomainsDict()
-    print("variable domains dict " + str(factor.variableDomainsDict()))
-
     normalizeUnconditioned = factor.unconditionedVariables()
     normalizeConditioned = factor.conditionedVariables()
 
