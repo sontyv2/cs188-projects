@@ -76,8 +76,9 @@ class DiscreteDistribution(dict):
         """
         "*** YOUR CODE HERE ***"
         total = self.total()
-        for key, value in self.items():
-            self[key] = value / total
+        if total != 0:
+            for key, value in self.items():
+                self[key] = value / total
 
     def sample(self):
         """
@@ -181,7 +182,7 @@ class InferenceModule:
             return noisyDistance == None    # returns 1 if noisyDistance is None, 0 otherwise
         if noisyDistance == None:
             trueDistance = manhattanDistance(pacmanPosition, jailPosition)
-            return noisyDistance == trueDistance       
+            return noisyDistance == trueDistance
         else:
             trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
         return busters.getObservationProbability(noisyDistance, trueDistance)
@@ -246,12 +247,7 @@ class InferenceModule:
         """
         Update beliefs based on the given distance observation and gameState.
         """
-        oldBeliefs = self.beliefs.copy()
-        for key in self.beliefs.key:
-            self.beliefs[key] = self.getObservationProbability(observation, 
-                gameState.getPacmanPosition(), 
-                gameState.getGhostPosition(), 
-                self.getJailPosition()) * oldBeliefs[key]
+        raise NotImplementedError
 
     def elapseTime(self, gameState):
         """
@@ -298,6 +294,24 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
+        self.beliefs.normalize()
+        oldBeliefs = self.beliefs.copy()
+
+        #numAgents = self.getNumAgents()
+
+        for pos in self.allPositions:
+            self.beliefs[pos] = self.getObservationProb(observation, 
+                gameState.getPacmanPosition(), 
+                pos, self.getJailPosition()) * oldBeliefs[pos]
+
+        # for key in self.beliefs.keys():
+        #     print("in beliefs: " , self.beliefs[key])
+        #     self.beliefs[key] = self.getObservationProb(observation, 
+        #         gameState.getPacmanPosition(), 
+        #         gameState.getGhostPosition(), 
+        #         self.getJailPosition()) * oldBeliefs[key]
+
+        
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
