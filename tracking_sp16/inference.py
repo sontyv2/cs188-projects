@@ -293,24 +293,14 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-        "*** YOUR CODE HERE ***"
+
         self.beliefs.normalize()
         oldBeliefs = self.beliefs.copy()
-
-        #numAgents = self.getNumAgents()
 
         for pos in self.allPositions:
             self.beliefs[pos] = self.getObservationProb(observation, 
                 gameState.getPacmanPosition(), 
                 pos, self.getJailPosition()) * oldBeliefs[pos]
-
-        # for key in self.beliefs.keys():
-        #     print("in beliefs: " , self.beliefs[key])
-        #     self.beliefs[key] = self.getObservationProb(observation, 
-        #         gameState.getPacmanPosition(), 
-        #         gameState.getGhostPosition(), 
-        #         self.getJailPosition()) * oldBeliefs[key]
-
         
         self.beliefs.normalize()
 
@@ -324,6 +314,20 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
+
+        self.beliefs.normalize()
+        oldBeliefs = self.getBeliefDistribution().copy()
+        for b in self.beliefs.keys():
+            self.beliefs[b] = 0
+
+        for oldPos in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+            for newPos in self.allPositions:
+                if(newPos not in self.beliefs.keys()):
+                    self.beliefs[newPos] = 0
+                self.beliefs[newPos] += newPosDist[newPos] * oldBeliefs[oldPos]
+        
+        self.beliefs.normalize()
 
     def getBeliefDistribution(self):
         return self.beliefs
