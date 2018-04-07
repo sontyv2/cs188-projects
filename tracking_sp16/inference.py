@@ -354,6 +354,7 @@ class ParticleFilter(InferenceModule):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
+        
 
     def observeUpdate(self, observation, gameState):
         """
