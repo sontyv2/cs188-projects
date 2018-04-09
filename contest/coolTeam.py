@@ -184,7 +184,7 @@ class SmartAgent(CaptureAgent):
     # if (food_we_are_defending.width - us[0].getPosition()[0]) > 0:
     #   defense_prob -= 0.1
 
-    if (successor.getAgentState(self.index).numCarrying > 2):
+    if (successor.getAgentState(self.index).numCarrying > 3):
       defense_prob = 1
 
     if (defense_prob >= 0.5):
@@ -284,7 +284,7 @@ class SmartAgent(CaptureAgent):
       weight = 0
     else:
       weight = 5
-    return {'successorScore': 100, 'distanceToFood': -1, 'distanceToCapsule': 50, 'distanceFromPartner': weight, 'distanceToNonInvaders': weight * 10}
+    return {'successorScore': 100, 'distanceToFood': -1, 'distanceToCapsule': 50, 'distanceFromPartner': weight, 'distanceToNonInvaders': weight * 25}
 
 
 
