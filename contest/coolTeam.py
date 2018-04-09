@@ -184,7 +184,7 @@ class SmartAgent(CaptureAgent):
     # if (food_we_are_defending.width - us[0].getPosition()[0]) > 0:
     #   defense_prob -= 0.1
 
-    if (successor.getAgentState(self.index).numCarrying > 5):
+    if (successor.getAgentState(self.index).numCarrying > 2):
       defense_prob = 1
 
     if (defense_prob >= 0.5):
@@ -228,12 +228,10 @@ class SmartAgent(CaptureAgent):
     rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
     if action == rev: features['reverse'] = 1
 
-    features['distanceFromPartner'] = self.getMazeDistance(myPos, partnerPos)
-
     return features
 
   def getDefensiveWeights(self, gameState, action):
-    return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10000, 'stop': -100, 'reverse': -2, 'distanceFromPartner': 0.1}
+    return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10000, 'stop': -100, 'reverse': -2}
 
 
   def getOffensiveFeatures(self, gameState, action):
@@ -269,14 +267,27 @@ class SmartAgent(CaptureAgent):
       features['distanceToFood'] = minDistance
 
     features['distanceFromPartner'] = self.getMazeDistance(myPos, partnerPos)
-    #features['distanceToNonInvaders'] = min([self.getMazeDistance(myPos, enemy.getPosition()) for enemy in non_invader_enemies])
+    features['distanceToNonInvaders'] = min([self.getMazeDistance(myPos, enemy.getPosition()) for enemy in non_invader_enemies])
 
     return features
 
 
 
   def getOffensiveWeights(self, gameState, action):
-    return {'successorScore': 100, 'distanceToFood': -1, 'distanceToCapsule': 50, 'distanceFromPartner': 0.1}#, 'distanceToNonInvaders': -10}
+    successor = self.getSuccessor(gameState, action)
+    myState = successor.getAgentState(self.index)
+    us = [successor.getAgentState(i) for i in self.getTeam(successor)]
+    us.remove(myState)
+    food_we_are_defending = self.getFoodYouAreDefending(gameState)
+
+    if (food_we_are_defending.width - us[0].getPosition()[0]) > 0:
+      weight = 0
+    else:
+      weight = 5
+    return {'successorScore': 100, 'distanceToFood': -1, 'distanceToCapsule': 50, 'distanceFromPartner': weight, 'distanceToNonInvaders': weight * 10}
+
+
+
 
 
 
