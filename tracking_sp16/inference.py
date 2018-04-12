@@ -355,7 +355,10 @@ class ParticleFilter(InferenceModule):
         self.particles = []
         "*** YOUR CODE HERE ***"
         quota = self.numParticles // len(self.legalPositions)
-        self.particles = [quota for i in range(len(self.legalPositions))]
+        # self.particles = [quota for i in range(len(self.legalPositions))]
+        self.particles = self.legalPositions * quota
+        remainder = self.numParticles % len(self.legalPositions)
+        self.particles.extend(self.legalPositions[:remainder])
 
     def observeUpdate(self, observation, gameState):
         """
@@ -370,25 +373,64 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        self.beliefs.normalize()
-        oldBeliefs = self.beliefs.copy()
 
-        if self.beliefs.total() == 0:
-            self.initializeUniformly(gameState)
+        probabilities = DiscreteDistribution()
 
-        for pos in self.legalPositions:
-            self.beliefs[pos] = self.getObservationProb(observation, 
+        for loc in self.legalPositions:
+            probabilities[loc] = 0
+
+        for loc in self.particles:
+            probabilities[loc] += self.getObservationProb(observation, 
                 gameState.getPacmanPosition(), 
-                pos, self.getJailPosition()) * oldBeliefs[pos]
-        
-        self.beliefs.normalize()
+                loc, self.getJailPosition())
+
+
+        if probabilities.total() == 0:
+            return self.initializeUniformly(gameState)
+
+        for i in range(self.numParticles):
+            #index = self.legalPositions.index(loc)
+            #self.particles[index] += 1
+            self.particles[i] = probabilities.sample()
+
+        #self.particles = [self.particles[i] * probabilities[i] for i in range(len(self.legalPositions))]
+
 
     def elapseTime(self, gameState):
         """
         Sample each particle's next state based on its current state and the
         gameState.
         """
-        "*** YOUR CODE HERE ***"
+
+        newParticles = self.particles[:]
+        for i in range(len(newParticles)):
+            newParticles[i] = 0
+
+        # for oldPosIndex in range(len(self.legalPositions)):
+        #     newPosDist = self.getPositionDistribution(gameState, self.legalPositions[oldPosIndex])
+
+        #     for _ in range(self.numParticles):
+        #         loc = newPosDist.sample()
+        #         if loc in self.legalPositions:
+        #             index = self.legalPositions.index(loc)
+        #             newParticles[index] += newPosDist[loc] * self.particles[oldPosIndex]
+
+        self.particles = newParticles[:]
+
+        for locIndex in self.particles:
+            loc = self.legalPositions[locIndex]
+            newPosDist = self.getPositionDistribution(gameState, loc)
+
+            for _ in self.particles:
+                newLoc = newPosDist.sample()
+                if loc not in self.legalPositions:
+                    print("error")
+                else:
+                    index = self.legalPositions.index(newLoc)
+                    newParticles[index] += newPosDist[loc] * self.particles[loc]
+
+
+        self.particles = newParticles[:]
 
     def getBeliefDistribution(self):
         """
@@ -396,12 +438,15 @@ class ParticleFilter(InferenceModule):
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
         """
-        "*** YOUR CODE HERE ***"
         self.beliefs = DiscreteDistribution()
-        for i in range(len(self.legalPositions)):
-            self.beliefs[self.legalPositions[i]] = self.particles[i]
+        for pos in self.particles:
+            self.beliefs[pos] = 0
+
+
+        for pos in self.particles:
+            self.beliefs[pos] += 1
         self.beliefs.normalize()
-        return self.beliefs
+        return self.beliefs 
 
 
 class JointParticleFilter(ParticleFilter):
@@ -429,6 +474,11 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
+        quota = self.numParticles // len(self.legalPositions)
+        self.particles = [quota for i in range(len(self.legalPositions))]
+
+        #for i in (itertools.product(self.legalPositions, repeat = self.numGhosts)):
+
 
     def addGhostAgent(self, agent):
         """
