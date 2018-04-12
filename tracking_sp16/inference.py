@@ -404,27 +404,11 @@ class ParticleFilter(InferenceModule):
 
         newParticles = [0] * self.numParticles
 
-        # for oldPosIndex in range(len(self.legalPositions)):
-        #     newPosDist = self.getPositionDistribution(gameState, self.legalPositions[oldPosIndex])
-
-        #     for _ in range(self.numParticles):
-        #         loc = newPosDist.sample()
-        #         if loc in self.legalPositions:
-        #             index = self.legalPositions.index(loc)
-        #             newParticles[index] += newPosDist[loc] * self.particles[oldPosIndex]
-
-
         for locIndex in range(self.numParticles):
             loc = self.particles[locIndex]
             newPosDist = self.getPositionDistribution(gameState, loc)
             newLoc = newPosDist.sample()
             newParticles[locIndex] = newLoc
-
-            # for _ in self.particles:
-            #     newLoc = newPosDist.sample()
-            #     index = self.legalPositions.index(newLoc)
-            #     newParticles[index] += self.particles[index]
-
 
         self.particles = newParticles[:]
 
@@ -470,11 +454,15 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        quota = self.numParticles // len(self.legalPositions)
-        self.particles = [quota for i in range(len(self.legalPositions))]
 
-        #for i in (itertools.product(self.legalPositions, repeat = self.numGhosts)):
+        iterproduct = list(itertools.product(self.legalPositions, repeat = self.numGhosts))
+        random.shuffle(iterproduct)
 
+        quota = self.numParticles / len(iterproduct)
+        for pos in range(quota):
+            self.particles.extend(iterproduct)
+        remainder = self.numParticles % len(iterproduct)
+        self.particles.extend(iterproduct[:remainder])
 
     def addGhostAgent(self, agent):
         """
