@@ -402,9 +402,7 @@ class ParticleFilter(InferenceModule):
         gameState.
         """
 
-        newParticles = self.particles[:]
-        for i in range(len(newParticles)):
-            newParticles[i] = 0
+        newParticles = [0] * self.numParticles
 
         # for oldPosIndex in range(len(self.legalPositions)):
         #     newPosDist = self.getPositionDistribution(gameState, self.legalPositions[oldPosIndex])
@@ -415,19 +413,17 @@ class ParticleFilter(InferenceModule):
         #             index = self.legalPositions.index(loc)
         #             newParticles[index] += newPosDist[loc] * self.particles[oldPosIndex]
 
-        self.particles = newParticles[:]
 
-        for locIndex in self.particles:
-            loc = self.legalPositions[locIndex]
+        for locIndex in range(self.numParticles):
+            loc = self.particles[locIndex]
             newPosDist = self.getPositionDistribution(gameState, loc)
+            newLoc = newPosDist.sample()
+            newParticles[locIndex] = newLoc
 
-            for _ in self.particles:
-                newLoc = newPosDist.sample()
-                if loc not in self.legalPositions:
-                    print("error")
-                else:
-                    index = self.legalPositions.index(newLoc)
-                    newParticles[index] += newPosDist[loc] * self.particles[loc]
+            # for _ in self.particles:
+            #     newLoc = newPosDist.sample()
+            #     index = self.legalPositions.index(newLoc)
+            #     newParticles[index] += self.particles[index]
 
 
         self.particles = newParticles[:]
