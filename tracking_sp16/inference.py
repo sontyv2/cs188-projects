@@ -418,15 +418,15 @@ class ParticleFilter(InferenceModule):
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
         """
-        self.beliefs = DiscreteDistribution()
-        for pos in self.particles:
-            self.beliefs[pos] = 0
+        beliefs = DiscreteDistribution()
+        # for pos in self.particles:
+        #     self.beliefs[pos] = 0
 
 
         for pos in self.particles:
-            self.beliefs[pos] += 1
-        self.beliefs.normalize()
-        return self.beliefs 
+            beliefs[pos] += 1
+        beliefs.normalize()
+        return beliefs 
 
 
 class JointParticleFilter(ParticleFilter):
@@ -496,22 +496,27 @@ class JointParticleFilter(ParticleFilter):
         """
         "*** YOUR CODE HERE ***"
         probabilities = DiscreteDistribution()
+        # for particle in self.particles:
+        #     probabilities[particle] = 1
 
-        for i in range(self.numGhosts):
-            for loc in self.legalPositions:
-                probabilities[loc] = self.getObservationProb(observation,
+        for particle in self.particles:
+            prob = 1
+            for i in range(self.numGhosts):
+                prob *= self.getObservationProb(observation[i],
                     gameState.getPacmanPosition(),
-                    loc, self.getJailPosition(i))
-
+                    particle[i], self.getJailPosition(i))
+            probabilities[particle] += prob
+  
         if probabilities.total() == 0:
-            return self.initializeUniformly(gameState)
-
-        for i in range(self.numParticles):
-            locTuples = ()
-            for ghost in range(self.numGhosts):
+            self.initializeUniformly(gameState)
+        else:
+            # print("probabilities is " + str(probabilities))
+            self.particles = []
+            for i in range(self.numParticles):
                 loc = probabilities.sample()
-                locTuples = locTuples + loc
-            self.particles[i] = locTuples
+                self.particles.append(loc)
+                # self.particles[i] = loc
+                # print("particles at " + str(i) + " " + str(self.particles[i]))
 
     def elapseTime(self, gameState):
         """
@@ -525,13 +530,13 @@ class JointParticleFilter(ParticleFilter):
             # now loop through and update each entry in newParticle...
             "*** YOUR CODE HERE ***"
 
-            newPosDist = self.getPositionDistribution(gameState, oldParticle)
-            for _ in self.particles:
-                newParticle = newPosDist.sample()
 
-            """*** END YOUR CODE HERE ***"""
-            newParticles.append(tuple(newParticle))
-        self.particles = newParticles
+            for i in range(self.numGhosts):
+                newPosDist = self.getPositionDistribution(gameState, 
+                    oldParticle, i, self.ghostAgents[i])
+                newParticle[i] = newPosDist.sample()
+            
+
             """*** END YOUR CODE HERE ***"""
             newParticles.append(tuple(newParticle))
         self.particles = newParticles
