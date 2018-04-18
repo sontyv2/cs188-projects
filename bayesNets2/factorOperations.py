@@ -101,7 +101,28 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    joinUnconditioned = set()
+    joinConditioned = set()
+    joinVariableDomainsDict = factors[0].variableDomainsDict()
+
+
+    for factor in factors:
+        joinUnconditioned = joinUnconditioned.union(factor.unconditionedVariables())
+        joinConditioned = joinConditioned.union(factor.conditionedVariables())
+
+    joinConditioned = joinConditioned - joinConditioned.intersection(joinUnconditioned)
+
+    joinFactor = Factor(joinUnconditioned, joinConditioned, joinVariableDomainsDict)
+
+    for assignment in joinFactor.getAllPossibleAssignmentDicts():
+        joinProbability = 1
+        for factor in factors:
+            joinProbability *= factor.getProbability(assignment)
+        joinFactor.setProbability(assignment, joinProbability)
+
+    return joinFactor
+
 
 
 def eliminateWithCallTracking(callTrackingList=None):
@@ -150,7 +171,24 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        # Unconditioned variables are X in P(X|Z) (before the bar)
+        newVars = factor.unconditionedVariables()
+        newVars.remove(eliminationVariable)
+        newFactor = Factor(newVars, factor.conditionedVariables(), factor.variableDomainsDict())
+
+
+        for f in factor.getAllPossibleAssignmentDicts():
+            if eliminationVariable in f:
+                newDict = f.copy()
+                newDict.pop(eliminationVariable)
+
+                if newDict not in newFactor.getAllPossibleAssignmentDicts():
+                    newFactor.setProbability(newDict, 0)
+
+                newFactor.setProbability(newDict, newFactor.getProbability(newDict) + factor.getProbability(f))
+
+        return newFactor
 
     return eliminate
 
@@ -205,5 +243,44 @@ def normalize(factor):
                             str(factor))
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    normalizeVariableDomainsDict = factor.variableDomainsDict()
+    normalizeUnconditioned = factor.unconditionedVariables()
+    normalizeConditioned = factor.conditionedVariables()
 
+#     The set of conditioned variables for the normalized factor consists 
+#     of the input factor's conditioned variables as well as any of the 
+#     input factor's unconditioned variables with exactly one entry in their 
+#     domain.
+    for var in normalizeVariableDomainsDict:
+        if len(normalizeVariableDomainsDict[var]) == 1:          
+            if (var in normalizeUnconditioned):
+                normalizeConditioned.add(var)
+                normalizeUnconditioned.remove(var)
+
+    normalizeFactor = Factor(normalizeUnconditioned, normalizeConditioned, normalizeVariableDomainsDict)
+
+    sumProb = 0
+    for assignment in normalizeFactor.getAllPossibleAssignmentDicts():
+        sumProb += factor.getProbability(assignment)
+
+    if sumProb == 0:
+        return None
+
+    for assignment in normalizeFactor.getAllPossibleAssignmentDicts():
+        prob = factor.getProbability(assignment)
+        normalizeFactor.setProbability(assignment, prob / sumProb)
+
+
+    return normalizeFactor
+
+
+
+
+"""
+    normalizeConditionalVariables = factor.conditionedVariables()
+    for unconditionedVariable in factor.unconditionedVariables():
+        if domain of unconditionedVariable == 1: # TODO: fix
+            normalizeConditionalVariables.add(unconditionedVariable)
+
+    normalizeFactor = bayesNet.Factor(factor.unconditionedVariables(), factor.conditionedVariables(), factor.variableDomainsDict())
+    """    
