@@ -81,6 +81,15 @@ class Graph(object):
         so don't forget to call `self.add` on each of the variables.
         """
         "*** YOUR CODE HERE ***"
+        # self.variables = variables
+        self.output = dict()
+        self.accumulator = dict()
+        for var in self.variables:
+            self.add(var)
+            self.output[var] = 0
+            self.accumulator[var] = None
+
+
 
     def get_nodes(self):
         """
@@ -150,6 +159,16 @@ class Graph(object):
         accumulator for the node, with correct shape.
         """
         "*** YOUR CODE HERE ***"
+        self.variables = self.variables.append(node)
+
+        ## run a step of the forward pass for that node
+        output = self.get_output(node)
+        self.output[node] = output
+        gradient = np.zeros_like(output)
+        self.accumulator[node] =  self.get_gradient[node]
+
+
+
 
     def backprop(self):
         """
@@ -286,11 +305,16 @@ class Add(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        return np.add(inputs[0], [1])
 
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
+        # print("input is " + str(inputs))
+        # print("gradient is " + str(gradient))
 
+        # adding does not change derivative
+        return list(inputs)
 
 class MatrixMultiply(FunctionNode):
     """
@@ -307,10 +331,24 @@ class MatrixMultiply(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        return np.multiply(inputs[0], inputs[1])
 
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
+        # CPrime = gradent
+
+        print("gradient " + str(gradient))
+        print("inputs[0].T is " + str(inputs[0].T))
+        print("inputs[1].T is " + str(inputs[1]))
+
+        A = np.dot(gradient, inputs[0].T)
+        B = np.dot(gradient, inputs[1])
+
+        print("[A, B] is " + str([A, B]))
+
+        return [A, B.T]
+        # return [np.dot(gradient, inputs[0].T), np.dot(gradient, inputs[1].T)]
 
 
 class MatrixVectorAdd(FunctionNode):
@@ -328,10 +366,12 @@ class MatrixVectorAdd(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        return inputs[0] + inputs[1]
 
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
+        return list(inputs) # addition does not change derivative
 
 
 class ReLU(FunctionNode):
@@ -349,10 +389,14 @@ class ReLU(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        return np.maximum(inputs[0], 0)
 
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
+        # print("inputs is " + str(inputs))
+        # print("gradient is " + str(gradient))
+        return np.maximum(inputs[0], 0)
 
 
 class SquareLoss(FunctionNode):
@@ -372,10 +416,17 @@ class SquareLoss(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        matrix = 0.5 * (inputs[0] - inputs[1]) ** 2
+        return np.mean(matrix)
 
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
+        print("inputs is " + str(inputs))
+        print("gradient is " + str(gradient))
+        print("gradient - np.mean " + str([gradient - np.mean(inputs[1]), gradient - np.mean(inputs[0])]))
+        # gradient is just a number
+        return [gradient - np.mean(inputs[1]), gradient - np.mean(inputs[0])]
 
 
 class SoftmaxLoss(FunctionNode):
