@@ -46,6 +46,7 @@ class RegressionModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
+        self.learning_rate = 0.5 # adjust as necessary
 
     def run(self, x, y=None):
         """
@@ -76,10 +77,26 @@ class RegressionModel(Model):
             # that the node belongs to. The loss node must be the last node
             # added to the graph.
             "*** YOUR CODE HERE ***"
+            loss_node = Variable(y)
+            self.train()
+            for x, y in self.get_data_and_monitor(self):
+                # make a new graph each time, and make a new loss node for each one
+                graph = self.run(x, y)
+                predicted_y = graph.get_output(x) # should this be loss_node?
+
+
+            predicted_y = ...
+            loss = y - predicted_y
+            node.data = loss
+            graph = Graph([node]) # incorrect, constructs new graph for every node
+
+
         else:
             # At test time, the correct output is unknown.
             # You should instead return your model's prediction as a numpy array
             "*** YOUR CODE HERE ***"
+            predicted_y = ...
+            return predicted_y
 
 
 class OddRegressionModel(Model):
