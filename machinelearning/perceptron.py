@@ -64,7 +64,7 @@ class Perceptron(object):
         "*** YOUR CODE HERE ***"
         if self.predict(x) == y:
             return False
-        self.weights = self.weights + np.dot(y, x)
+        self.weights = self.weights + np.dot(y, x) ### if positive, should add to weights, if negative should subtract from weights
         return True
 
     def train(self):
@@ -83,10 +83,10 @@ class Perceptron(object):
         graphics in between yielding data points.
         """
         "*** YOUR CODE HERE ***"
-        changed = False
-        for x, y in self.get_data_and_monitor(self):
-                if self.update(x, y):
-                    changed = True
+        # changed = False
+        # for x, y in self.get_data_and_monitor(self):
+        #         if self.update(x, y):
+        #             changed = True
         while changed:
             changed = False
             for x, y in self.get_data_and_monitor(self):

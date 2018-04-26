@@ -84,14 +84,15 @@ class Graph(object):
         # self.variables = variables
         self.variables = []
         self.output = dict()
-        self.accumulator = dict()
+        self.accumulator = dict() ## self.gradient
         for var in variables:
             self.add(var)
-            self.output[var] = 0
-            self.accumulator[var] = 0
+            self.output[var] = 0.0
+            self.accumulator[var] = 0.0
+            print("var")
             # self.accumulator[var] = np.zeros_like(self.get_output(var))
             # self.accumulator[var] = None
-        self.accumulator[variables[-1]] = 1
+        self.accumulator[variables[-1]] = 1.0 ## not sure if necessary, probably not
 
 
 
@@ -175,7 +176,7 @@ class Graph(object):
         self.variables.append(node)
 
         ## run a step of the forward pass for that node
-        output = self.get_output(node)
+        output = self.get_output(node) ## change variable name
         self.output[node] = output
         gradient = np.zeros_like(output)
         self.accumulator[node] =  gradient
@@ -202,18 +203,27 @@ class Graph(object):
         "*** YOUR CODE HERE ***"
         last = self.get_nodes()[-1]
         # self.accumulator[last] = np.ones_like(self.get_output(last))
-        self.accumulator[last] = 1
+        self.accumulator[last] = 1.0
 
-        for i in range(1, len(self.get_nodes()) - 1):
+        for i in range(1, len(self.get_nodes()) - 1): ## reversed
             # reverse order
             node = self.get_nodes()[-i]
             output = node.backward(self.get_inputs(node), self.get_gradient(node))
+            print("output")
+            print(output)
 
             # backward returns list of gradeints corresponding to inputs
             # accumulate gradients properly for each input
             for i in range(len(self.get_inputs(node))):
-                parent = self.get_inputs(node)[i]
-                self.accumulator[parent] = self.accumulator[parent] + output[i]
+                # print("inputs")
+                # print(self.get_inputs(node))
+                parent_gradients = self.get_inputs(node)[i] ## don't call get_inputs 
+                # print("parent")
+                # print(parent)
+                for g in parent_gradients:
+                    print("g")
+                    print(g)
+                    self.accumulator[g[0]] = self.accumulator[g[0]] + output[i]
 
 
 
@@ -392,7 +402,7 @@ class MatrixVectorAdd(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
-        return inputs[0] + inputs[1]
+        return inputs[0] + inputs[1] ## double check
 
     @staticmethod
     def backward(inputs, gradient):
