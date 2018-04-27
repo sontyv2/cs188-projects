@@ -214,7 +214,6 @@ class Graph(object):
         self.node_backprop(last)
 
 
-
     def step(self, step_size):
         """
         TODO: Question 3 - [Neural Network] Computation Graph
