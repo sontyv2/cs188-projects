@@ -84,6 +84,12 @@ class Perceptron(object):
         """
         "*** YOUR CODE HERE ***"
         changed = True
+<<<<<<< HEAD
+=======
+        # for x, y in self.get_data_and_monitor(self):
+        #         if self.update(x, y):
+        #             changed = True
+>>>>>>> 6fb202738eeee5510800f004668af98633e4b52c
         while changed:
             changed = False
             for x, y in self.get_data_and_monitor(self):

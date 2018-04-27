@@ -83,15 +83,12 @@ class Graph(object):
         "*** YOUR CODE HERE ***"
         # self.variables = variables
         self.variables = []
+        self.inputs = dict()
         self.output = dict()
         self.gradient = dict() ## self.gradient
 
         for var in variables:
             self.add(var)
-            self.output[var] = var.data
-            self.gradient[var] = np.zeros_like(self.get_output(var))
-
-        self.gradient[variables[-1]] = np.ones_like(self.get_output(variables[-1])) ## not sure if necessary, probably not
 
 
 
@@ -120,7 +117,7 @@ class Graph(object):
         Hint: every node has a `.get_parents()` method
         """
         "*** YOUR CODE HERE ***"
-        return [self.get_output(parent) for parent in node.get_parents()]
+        return self.inputs[node]
 
     def get_output(self, node):
         """
@@ -133,7 +130,6 @@ class Graph(object):
         """
         "*** YOUR CODE HERE ***"
         return self.output[node]
-        #return node.forward(self.get_inputs(node))
 
 
     def get_gradient(self, node):
@@ -152,8 +148,9 @@ class Graph(object):
         Returns: a numpy array
         """
         "*** YOUR CODE HERE ***"
-        # if node not in self.gradient:
-        #     return np.zeros_like(self.get_output(node))
+
+        if node not in self.gradient:
+            self.gradient[node] = np.zeros_like(self.get_output(node))
         return self.gradient[node]
 
 
@@ -173,11 +170,25 @@ class Graph(object):
         """
         "*** YOUR CODE HERE ***"
         self.variables.append(node)
-
+        self.inputs[node] = [self.get_output(parent) for parent in node.get_parents()]
+        ## run a step of the forward pass for that node
         self.output[node] = node.forward(self.get_inputs(node))
 
-        self.gradient[node] = np.zeros_like(self.get_output(node))
+    def node_backprop(self, node):
+        for i in range(len(node.get_parents())):
+            parent = node.get_parents()[i]
+            self.get_gradient(parent) # create gradient if not exist
+            # node_gradient = self.get_gradient(node)
+            # print("node gradient " + str(node_gradient))
+            
+            node_backward = node.backward(self.get_inputs(node), self.get_gradient(node))
+            # print("node backward " + str(node_backward))
+            
+            # value = node_gradient * node_backward[1]
+            # print("value " + str(value))
 
+            self.gradient[parent] += node_backward[i]
+            self.node_backprop(parent)
 
     def backprop(self):
         """
@@ -196,17 +207,11 @@ class Graph(object):
         loss_node = self.get_nodes()[-1]
         assert np.asarray(self.get_output(loss_node)).ndim == 0
 
-        "*** YOUR CODE HERE ***"
-        self.gradient[loss_node] = 1.0
+        last = self.get_nodes()[-1]
+        # self.gradient[last] = np.ones_like(self.get_output(last))
+        self.gradient[last] = 1.0
 
-        curr_nodes = self.get_nodes()
-
-        for i in reversed(range(len(curr_nodes) - 1)): ## reversed
-            node = curr_nodes[i]
-            backward_outputs = node.backward(self.get_inputs(node), self.get_gradient(node))
-            for output in self.get_inputs(node):
-                #iterating through  output from each parent
-                print(output)
+        self.node_backprop(last)
 
 
 
@@ -223,10 +228,11 @@ class Graph(object):
         "*** YOUR CODE HERE ***"
         for i in range(len(self.get_nodes())):
             node = self.get_nodes()[i]
-            # need to index into self.get_nodes() and get actual indexed node
-            # so that we update the variable list. otherwise will just modify 
-            # local variable node
-            self.get_nodes()[i].data -= self.gradient[node] * step_size
+            if (isinstance(node, Variable)):
+                # need to index into self.get_nodes() and get actual indexed node
+                # so that we update the variable list. otherwise will just modify 
+                # local variable node
+                self.get_nodes()[i].data -= self.gradient[node] * step_size
 
 
 class DataNode(object):

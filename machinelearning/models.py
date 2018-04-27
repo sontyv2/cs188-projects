@@ -77,25 +77,27 @@ class RegressionModel(Model):
             # that the node belongs to. The loss node must be the last node
             # added to the graph.
             "*** YOUR CODE HERE ***"
-            loss_node = Variable(y)
-            self.train()
-            for x, y in self.get_data_and_monitor(self):
-                # make a new graph each time, and make a new loss node for each one
-                graph = self.run(x, y)
-                predicted_y = graph.get_output(x) # should this be loss_node?
+            loss_node = nn.Variable(y.shape[0], y.shape[1]) # creates loss node with shape y - predicted_y
+            # loss_node.data = y - predicted_y
+            loss_node.data = y # maybe should include predicted_y
+            # print(loss_node.data)
 
+            # np.append(x, loss_node) # x is np.array
+            # graph = nn.Graph(x) # graph takes in list of variables = nodes
+            graph = nn.Graph([loss_node])
+            predicted_y = graph.get_output(loss_node)
 
-            predicted_y = ...
-            loss = y - predicted_y
-            node.data = loss
-            graph = Graph([node]) # incorrect, constructs new graph for every node
-
+            # print("predicted y " + str(predicted_y))
+            # loss = y - predicted_y
+            # loss_node.data = loss
+            # return loss_node.data
+            return graph
 
         else:
             # At test time, the correct output is unknown.
             # You should instead return your model's prediction as a numpy array
             "*** YOUR CODE HERE ***"
-            predicted_y = ...
+            predicted_y = graph.get_output(x)
             return predicted_y
 
 
