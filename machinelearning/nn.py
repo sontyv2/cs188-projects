@@ -83,16 +83,16 @@ class Graph(object):
         "*** YOUR CODE HERE ***"
         # self.variables = variables
         self.variables = []
+        self.inputs = dict()
         self.output = dict()
         self.accumulator = dict() ## self.gradient
         for var in variables:
             self.add(var)
-            self.output[var] = 0.0
-            self.accumulator[var] = 0.0
-            print("var")
+            # self.output[var] = 0.0
+            # self.accumulator[var] = 0.0
             # self.accumulator[var] = np.zeros_like(self.get_output(var))
             # self.accumulator[var] = None
-        self.accumulator[variables[-1]] = 1.0 ## not sure if necessary, probably not
+        # self.accumulator[variables[-1]] = 1.0 ## not sure if necessary, probably not
 
 
 
@@ -121,7 +121,8 @@ class Graph(object):
         Hint: every node has a `.get_parents()` method
         """
         "*** YOUR CODE HERE ***"
-        return [self.get_output(parent) for parent in node.get_parents()]
+        return self.inputs[node]
+        # return [self.get_output(parent) for parent in node.get_parents()]
 
     def get_output(self, node):
         """
@@ -133,8 +134,8 @@ class Graph(object):
         Returns: a numpy array or a scalar
         """
         "*** YOUR CODE HERE ***"
-        # return self.output[node]
-        return node.forward(self.get_inputs(node))
+        return self.output[node]
+        # return node.forward(self.get_inputs(node))
 
 
     def get_gradient(self, node):
@@ -153,8 +154,8 @@ class Graph(object):
         Returns: a numpy array
         """
         "*** YOUR CODE HERE ***"
-        # if node not in self.accumulator:
-        #     return np.zeros_like(self.get_output(node))
+        if node not in self.accumulator:
+            self.accumulator[node] = np.zeros_like(self.get_output(node))
         return self.accumulator[node]
 
 
@@ -174,14 +175,26 @@ class Graph(object):
         """
         "*** YOUR CODE HERE ***"
         self.variables.append(node)
+        self.inputs[node] = [self.get_output(parent) for parent in node.get_parents()]
 
         ## run a step of the forward pass for that node
-        output = self.get_output(node) ## change variable name
-        self.output[node] = output
-        gradient = np.zeros_like(output)
-        self.accumulator[node] =  gradient
-        # self.accumulator[node] = 0
+        self.output[node] = node.forward(self.get_inputs(node))
 
+    def node_backprop(self, node):
+        for i in range(len(node.get_parents())):
+            parent = node.get_parents()[i]
+            self.get_gradient(parent) # create gradient if not exist
+            # node_gradient = self.get_gradient(node)
+            # print("node gradient " + str(node_gradient))
+            
+            node_backward = node.backward(self.get_inputs(node), self.get_gradient(node))
+            # print("node backward " + str(node_backward))
+            
+            # value = node_gradient * node_backward[1]
+            # print("value " + str(value))
+
+            self.accumulator[parent] += node_backward[i]
+            self.node_backprop(parent)
 
     def backprop(self):
         """
@@ -205,25 +218,33 @@ class Graph(object):
         # self.accumulator[last] = np.ones_like(self.get_output(last))
         self.accumulator[last] = 1.0
 
-        for i in range(1, len(self.get_nodes()) - 1): ## reversed
-            # reverse order
-            node = self.get_nodes()[-i]
-            output = node.backward(self.get_inputs(node), self.get_gradient(node))
-            print("output")
-            print(output)
+        self.node_backprop(last)
 
-            # backward returns list of gradeints corresponding to inputs
-            # accumulate gradients properly for each input
-            for i in range(len(self.get_inputs(node))):
-                # print("inputs")
-                # print(self.get_inputs(node))
-                parent_gradients = self.get_inputs(node)[i] ## don't call get_inputs 
-                # print("parent")
-                # print(parent)
-                for g in parent_gradients:
-                    print("g")
-                    print(g)
-                    self.accumulator[g[0]] = self.accumulator[g[0]] + output[i]
+
+
+
+
+
+
+        # for i in range(1, len(self.get_nodes()) - 1): ## reversed
+        #     # reverse order
+        #     node = self.get_nodes()[-i]
+        #     output = node.backward(self.get_inputs(node), self.get_gradient(node))
+        #     print("output")
+        #     print(output)
+
+        #     # backward returns list of gradeints corresponding to inputs
+        #     # accumulate gradients properly for each input
+        #     for i in range(len(self.get_inputs(node))):
+        #         # print("inputs")
+        #         # print(self.get_inputs(node))
+        #         parent_gradients = self.get_inputs(node)[i] ## don't call get_inputs 
+        #         # print("parent")
+        #         # print(parent)
+        #         for g in parent_gradients:
+        #             print("g")
+        #             print(g)
+        #             self.accumulator[g[0]] = self.accumulator[g[0]] + output[i]
 
 
 
@@ -240,10 +261,11 @@ class Graph(object):
         "*** YOUR CODE HERE ***"
         for i in range(len(self.get_nodes())):
             node = self.get_nodes()[i]
-            # need to index into self.get_nodes() and get actual indexed node
-            # so that we update the variable list. otherwise will just modify 
-            # local variable node
-            self.get_nodes()[i].data -= self.gradient[node] * step_size
+            if (isinstance(node, Variable)):
+                # need to index into self.get_nodes() and get actual indexed node
+                # so that we update the variable list. otherwise will just modify 
+                # local variable node
+                self.get_nodes()[i].data -= self.accumulator[node] * step_size
 
 
 class DataNode(object):
