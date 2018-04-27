@@ -83,10 +83,7 @@ class Perceptron(object):
         graphics in between yielding data points.
         """
         "*** YOUR CODE HERE ***"
-        # changed = False
-        # for x, y in self.get_data_and_monitor(self):
-        #         if self.update(x, y):
-        #             changed = True
+        changed = True
         while changed:
             changed = False
             for x, y in self.get_data_and_monitor(self):

@@ -24,7 +24,7 @@ def main():
     m = Variable(2, 1)
     b = Variable(1)
 
-    # We train our network using batch gradient descent on our data
+ # We train our network using batch gradient descent on our data
     for iteration in range(10000):
         # At each iteration, we first calculate a loss that measures how
         # good our network is. The graph keeps track of all operations used
@@ -84,15 +84,14 @@ class Graph(object):
         # self.variables = variables
         self.variables = []
         self.output = dict()
-        self.accumulator = dict() ## self.gradient
+        self.gradient = dict() ## self.gradient
+
         for var in variables:
             self.add(var)
-            self.output[var] = 0.0
-            self.accumulator[var] = 0.0
-            print("var")
-            # self.accumulator[var] = np.zeros_like(self.get_output(var))
-            # self.accumulator[var] = None
-        self.accumulator[variables[-1]] = 1.0 ## not sure if necessary, probably not
+            self.output[var] = var.data
+            self.gradient[var] = np.zeros_like(self.get_output(var))
+
+        self.gradient[variables[-1]] = np.ones_like(self.get_output(variables[-1])) ## not sure if necessary, probably not
 
 
 
@@ -133,8 +132,8 @@ class Graph(object):
         Returns: a numpy array or a scalar
         """
         "*** YOUR CODE HERE ***"
-        # return self.output[node]
-        return node.forward(self.get_inputs(node))
+        return self.output[node]
+        #return node.forward(self.get_inputs(node))
 
 
     def get_gradient(self, node):
@@ -153,9 +152,9 @@ class Graph(object):
         Returns: a numpy array
         """
         "*** YOUR CODE HERE ***"
-        # if node not in self.accumulator:
+        # if node not in self.gradient:
         #     return np.zeros_like(self.get_output(node))
-        return self.accumulator[node]
+        return self.gradient[node]
 
 
     def add(self, node):
@@ -170,17 +169,14 @@ class Graph(object):
         whereas we may wish to call `get_output` multiple times.
 
         Additionally, this method should initialize an all-zero gradient
-        accumulator for the node, with correct shape.
+        gradient for the node, with correct shape.
         """
         "*** YOUR CODE HERE ***"
         self.variables.append(node)
 
-        ## run a step of the forward pass for that node
-        output = self.get_output(node) ## change variable name
-        self.output[node] = output
-        gradient = np.zeros_like(output)
-        self.accumulator[node] =  gradient
-        # self.accumulator[node] = 0
+        self.output[node] = node.forward(self.get_inputs(node))
+
+        self.gradient[node] = np.zeros_like(self.get_output(node))
 
 
     def backprop(self):
@@ -201,29 +197,16 @@ class Graph(object):
         assert np.asarray(self.get_output(loss_node)).ndim == 0
 
         "*** YOUR CODE HERE ***"
-        last = self.get_nodes()[-1]
-        # self.accumulator[last] = np.ones_like(self.get_output(last))
-        self.accumulator[last] = 1.0
+        self.gradient[loss_node] = 1.0
 
-        for i in range(1, len(self.get_nodes()) - 1): ## reversed
-            # reverse order
-            node = self.get_nodes()[-i]
-            output = node.backward(self.get_inputs(node), self.get_gradient(node))
-            print("output")
-            print(output)
+        curr_nodes = self.get_nodes()
 
-            # backward returns list of gradeints corresponding to inputs
-            # accumulate gradients properly for each input
-            for i in range(len(self.get_inputs(node))):
-                # print("inputs")
-                # print(self.get_inputs(node))
-                parent_gradients = self.get_inputs(node)[i] ## don't call get_inputs 
-                # print("parent")
-                # print(parent)
-                for g in parent_gradients:
-                    print("g")
-                    print(g)
-                    self.accumulator[g[0]] = self.accumulator[g[0]] + output[i]
+        for i in reversed(range(len(curr_nodes) - 1)): ## reversed
+            node = curr_nodes[i]
+            backward_outputs = node.backward(self.get_inputs(node), self.get_gradient(node))
+            for output in self.get_inputs(node):
+                #iterating through  output from each parent
+                print(output)
 
 
 
@@ -478,20 +461,10 @@ class SquareLoss(FunctionNode):
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
-        # print("inputs is " + str(inputs))
-        # print("gradient is " + str(gradient))
-        # print("gradient - np.mean " + str([gradient - np.mean(inputs[1]), gradient - np.mean(inputs[0])]))
-        # gradient is just a number
-        # return [[gradient - np.mean(inputs[1]), gradient - np.mean(inputs[0])] for i in inputs]
-        # return [[gradient] for i in inputs]
 
-        # print(inputs[0] + inputs[1]) * 1/(len(inputs) * len(inputs[0]))
         return [(inputs[0] - inputs[1]) * 1/(inputs[0].shape[0] * inputs[0].shape[1]) * gradient, \
         - 1 * (inputs[0] - inputs[1]) * 1/(inputs[0].shape[0] * inputs[0].shape[1]) * gradient]
 
-        # return [ * gradient, * gradient]
-
-        # return [np.ones_like(i) * gradient for i in inputs] 
 
 class SoftmaxLoss(FunctionNode):
     """
