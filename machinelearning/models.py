@@ -454,6 +454,17 @@ class LanguageIDModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
+        self.learning_rate = 0.007 # adjust as necessary
+
+        ## Layer 1
+        d = 350 # end value of this layer, 200 or 250
+        self.m = nn.Variable(4, d)
+        self.b = nn.Variable(d)
+
+        ## Layer 2
+        d2 = 2 # end value of last layer must always be 1
+        self.m2 = nn.Variable(d, d2)
+        self.b2 = nn.Variable(d2)
 
     def run(self, xs, y=None):
         """
@@ -497,8 +508,44 @@ class LanguageIDModel(Model):
         batch_size = xs[0].shape[0]
 
         "*** YOUR CODE HERE ***"
+        ### Language ID Model
 
+        """
+        1. one hot encode each character C into a vector C_0 --> ascii ( d = 8)
+        2. h_0 starts out as a zero vector of dimensionality d
+        3. h1 = f(h0, c0) using the xm + b, relu format
+        4. ... hn = f(hn, cn) where n is the number of characters in the input word (for loop)
+        row of matrix h
+
+        At the end
+        5. pass final h into one more round of neural network and output predicted y
+        """
+
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        input_xs = nn.Input(self.graph, xs)
+        h = np.zeros_like((5,1))
+
+        for c in range(len(xs)): # c is the ith letter of n words
+            # Encode c
+            for i in range(num_chars):
+                # np.transpose
+
+            # Layer 
+            xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
+            xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+            xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+
+        # Last layer
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+
+        predicted_y = xm_plus_b2
         if y is not None:
             "*** YOUR CODE HERE ***"
+            input_q_target = nn.Input(self.graph, Q_target)
+            loss = nn.SoftmaxLoss(self.graph, predicted_y, input_q_target) # adds loss node to graph
+            return self.graph
         else:
             "*** YOUR CODE HERE ***"
+            return self.graph.get_output(predicted_y)
