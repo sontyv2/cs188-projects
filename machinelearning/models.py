@@ -76,14 +76,15 @@ class RegressionModel(Model):
             # Here, you should construct a loss node, and return the nn.Graph
             # that the node belongs to. The loss node must be the last node
             # added to the graph.
-            "*** YOUR CODE HERE ***"
-            #loss_node = nn.Variable(y.shape[0], y.shape[1]) # creates loss node with shape y - predicted_y
-            # loss_node.data = y - predicted_y
-            #loss_node.data = y # maybe should include predicted_y
-            # print(loss_node.data)
 
-            # np.append(x, loss_node) # x is np.array
-            # graph = nn.Graph(x) # graph takes in list of variables = nodes
+
+            #create variables that correspond to sin graph
+            #use similar code to below (input x and input y should still be the same)
+            #then compute loss using same thing
+            #add loss
+            #return graph
+
+            #this is all just example code, we really need our code to approx sin
 
             m = nn.Variable(200, 1)
             b = nn.Variable(1)
@@ -94,6 +95,8 @@ class RegressionModel(Model):
             xm = nn.MatrixMultiply(graph, input_x, m)
             xm_plus_b = nn.MatrixVectorAdd(graph, xm, b)
             loss = nn.SquareLoss(graph, xm_plus_b, input_y)
+
+            graph.add(loss) #??
 
             return graph
 
