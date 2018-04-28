@@ -91,7 +91,6 @@ class Graph(object):
             self.add(var)
 
 
-
     def get_nodes(self):
         """
         TODO: Question 3 - [Neural Network] Computation Graph
@@ -178,14 +177,8 @@ class Graph(object):
         for i in range(len(node.get_parents())):
             parent = node.get_parents()[i]
             self.get_gradient(parent) # create gradient if not exist
-            # node_gradient = self.get_gradient(node)
-            # print("node gradient " + str(node_gradient))
             
             node_backward = node.backward(self.get_inputs(node), self.get_gradient(node))
-            # print("node backward " + str(node_backward))
-            
-            # value = node_gradient * node_backward[1]
-            # print("value " + str(value))
 
             self.gradient[parent] += node_backward[i]
             self.node_backprop(parent)
@@ -208,7 +201,6 @@ class Graph(object):
         assert np.asarray(self.get_output(loss_node)).ndim == 0
 
         last = self.get_nodes()[-1]
-        # self.gradient[last] = np.ones_like(self.get_output(last))
         self.gradient[last] = 1.0
 
         self.node_backprop(last)
@@ -363,6 +355,8 @@ class MatrixMultiply(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        # print("inputs[0].shape " + str(inputs[0].shape))
+        # print("inputs[1].shape " + str(inputs[1].shape))
         return inputs[0].dot(inputs[1])
 
     @staticmethod
@@ -418,26 +412,7 @@ class ReLU(FunctionNode):
     @staticmethod
     def backward(inputs, gradient):
         "*** YOUR CODE HERE ***"
-        # return [gradient * np.maximum(i, 0) for i in inputs]
-        # return [np.maximum(gradient, 0) for i in inputs]
-        # lst = []
-        # print("inputs is " + str(inputs))
-        # for i in inputs:
-        #     print("input is " + str(i))
-        #     print("i > 0 is " + str(i > 0))
-        #     print("gradient is " + str(gradient))
-        #     lst.append([np.dot(i > 0, gradient)])
-        # print(lst)
-        # return lst[0]
-
-
-        # array = np.ones_like(inputs)
-        # print("inputs " + str(inputs))
-
-        # print("inputs > 0 " + str(inputs > np.zeros_like(inputs)))
-        # print("gradient is " + str(gradient))
         nonzeroInputs = inputs[0] > np.zeros_like(inputs[0])
-        # print("nonzero is " + str(nonzeroInputs))
         return [nonzeroInputs.astype(int) * gradient]
 
 

@@ -47,6 +47,12 @@ class RegressionModel(Model):
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
         self.learning_rate = 0.02 # adjust as necessary
+        d = 1 # end value of this layer. later can change to 300 when add more layers
+        self.m = nn.Variable(1, d)
+        # self.b = nn.Variable(1, d) # maybe just (1)
+        self.b = nn.Variable(1)
+        self.graph = nn.Graph([self.m, self.b])
+
 
     def run(self, x, y=None):
         """
@@ -70,6 +76,16 @@ class RegressionModel(Model):
         Note: DO NOT call backprop() or step() inside this method!
         """
         "*** YOUR CODE HERE ***"
+        # graph = nn.Graph([self.m, self.b])
+        input_x = nn.Input(self.graph, x)
+        # print("m.shape " + str(self.m.data.shape))
+        # print("b.shape " + str(self.b.data.shape))
+
+        xm = nn.MatrixMultiply(self.graph, input_x, self.m)
+        # print("BEFORE MATRIX VECTOR ADD")
+        xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+        # print("AFTER MATRIX VECTOR ADD")
+        # print("input_x.shape " + str(input_x.data.shape))
 
         if y is not None:
             # At training time, the correct output `y` is known.
@@ -84,28 +100,19 @@ class RegressionModel(Model):
             #add loss
             #return graph
 
-            #this is all just example code, we really need our code to approx sin
+            #we need our code to approx sin
 
-            m = nn.Variable(200, 1)
-            b = nn.Variable(1)
-
-            graph = nn.Graph([m, b])
-            input_x = nn.Input(graph, x)
-            input_y = nn.Input(graph, y)
-            xm = nn.MatrixMultiply(graph, input_x, m)
-            xm_plus_b = nn.MatrixVectorAdd(graph, xm, b)
-            loss = nn.SquareLoss(graph, xm_plus_b, input_y)
-
-            graph.add(loss) #??
-
-            return graph
+            # print("y type " + str(type(y)))
+            input_y = nn.Input(self.graph, y)
+            loss = nn.SquareLoss(self.graph, xm_plus_b, input_y) # adds loss node to graph
+            return self.graph
 
         else:
             # At test time, the correct output is unknown.
             # You should instead return your model's prediction as a numpy array
             "*** YOUR CODE HERE ***"
-            predicted_y = graph.get_output(x)
-            return predicted_y
+            # return xm_plus_b
+            return self.graph.get_output(xm_plus_b)
 
 
 class OddRegressionModel(Model):
