@@ -259,6 +259,17 @@ class DigitClassificationModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
+        self.learning_rate = 0.15 # adjust as necessary
+
+        ## Layer 1
+        d = 350 # end value of this layer, 200 or 250
+        self.m = nn.Variable(784, d)
+        self.b = nn.Variable(d)
+
+        ## Layer 2
+        d2 = 10 # end value of last layer must always be 1
+        self.m2 = nn.Variable(d, d2)
+        self.b2 = nn.Variable(d2)
 
     def run(self, x, y=None):
         """
@@ -285,11 +296,31 @@ class DigitClassificationModel(Model):
             (if y is None) A (batch_size x 10) numpy array of scores (aka logits)
         """
         "*** YOUR CODE HERE ***"
+        ### Digit Classification 
+
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        input_x = nn.Input(self.graph, x)
+
+        ## Layer 1
+        xm = nn.MatrixMultiply(self.graph, input_x, self.m)
+        xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+        xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+
+        ## Layer 2
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+
+        predicted_y = xm_plus_b2
 
         if y is not None:
             "*** YOUR CODE HERE ***"
+            input_y = nn.Input(self.graph, y)
+            loss = nn.SoftmaxLoss(self.graph, predicted_y, input_y) # adds loss node to graph
+            return self.graph
         else:
             "*** YOUR CODE HERE ***"
+            return self.graph.get_output(predicted_y)
 
 
 class DeepQModel(Model):
@@ -313,6 +344,18 @@ class DeepQModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
+        self.learning_rate = 0.05 # adjust as necessary
+
+        ## Layer 1
+        d = 300 # end value of this layer, 200 or 250
+        self.m = nn.Variable(1, d)
+        self.b = nn.Variable(d)
+
+        ## Layer 2
+        d2 = 1 # end value of last layer must always be 1
+        self.m2 = nn.Variable(d, d2)
+        self.b2 = nn.Variable(d2)
+
 
     def run(self, states, Q_target=None):
         """
@@ -342,11 +385,32 @@ class DeepQModel(Model):
                 scores, for the two actions
         """
         "*** YOUR CODE HERE ***"
+        ### Deep Q-Learning
+
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        input_states = nn.Input(self.graph, states)
+
+        ## Layer 1
+        xm = nn.MatrixMultiply(self.graph, input_states, self.m)
+        xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+        xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+
+        ## Layer 2
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+
+        predicted_y = xm_plus_b2
 
         if Q_target is not None:
             "*** YOUR CODE HERE ***"
+            input_q_target = nn.Input(self.graph, Q_target)
+            loss = nn.SquareLoss(self.graph, predicted_y, input_q_target) # adds loss node to graph
+            return self.graph
         else:
             "*** YOUR CODE HERE ***"
+            return self.graph.get_output(predicted_y)
+
 
     def get_action(self, state, eps):
         """

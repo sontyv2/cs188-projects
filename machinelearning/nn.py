@@ -415,9 +415,6 @@ class ReLU(FunctionNode):
         nonzeroInputs = inputs[0] > np.zeros_like(inputs[0])
         return [nonzeroInputs.astype(int) * gradient]
 
-
-
-
 class SquareLoss(FunctionNode):
     """
     TODO: Question 2 - [Neural Network] Nodes
