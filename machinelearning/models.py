@@ -58,9 +58,6 @@ class RegressionModel(Model):
         self.m2 = nn.Variable(d, d2)
         self.b2 = nn.Variable(d2)
 
-        
-
-
     def run(self, x, y=None):
         """
         TODO: Question 4 - [Application] Regression
@@ -85,8 +82,10 @@ class RegressionModel(Model):
         "*** YOUR CODE HERE ***"
         # graph = nn.Graph([self.m, self.b])
 
+        ### Regression Model
         self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
         input_x = nn.Input(self.graph, x)
+
 
         ## Layer 1
         xm = nn.MatrixMultiply(self.graph, input_x, self.m)
@@ -144,6 +143,18 @@ class OddRegressionModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
+        self.learning_rate = 0.02 # adjust as necessary
+
+        ## Layer 1
+        d = 100 # end value of this layer
+        self.m = nn.Variable(1, d)
+        self.b = nn.Variable(d)
+
+        ## Layer 2
+        d2 = 1 # end value of last layer must always be 1
+        self.m2 = nn.Variable(d, d2)
+        self.b2 = nn.Variable(d2)
+
 
     def run(self, x, y=None):
         """
@@ -168,16 +179,60 @@ class OddRegressionModel(Model):
         """
         "*** YOUR CODE HERE ***"
 
+        ### Odd Regression Model
+
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        input_x = nn.Input(self.graph, x)
+
+        ### Construct g(x)
+
+        ## Layer 1
+        xm = nn.MatrixMultiply(self.graph, input_x, self.m)
+        xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+        xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+
+        ## Layer 2
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+
+
+        ### Construct -g(-x)
+        input_neg_one = nn.Input(self.graph, np.array([[-1.0]]))
+        neg_x = nn.MatrixMultiply(self.graph, input_x, input_neg_one)
+        
+        ## Layer 1
+        neg_xm = nn.MatrixMultiply(self.graph, neg_x, self.m)
+        neg_xm_plus_b = nn.MatrixVectorAdd(self.graph, neg_xm, self.b)
+        neg_xm_plus_b_relu = nn.ReLU(self.graph, neg_xm_plus_b)
+
+        ## Layer 2
+        neg_xm2 = nn.MatrixMultiply(self.graph, neg_xm_plus_b_relu, self.m2)
+        neg_xm_plus_b2 = nn.MatrixVectorAdd(self.graph, neg_xm2, self.b2) ## construction of -g(-x)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+
+        ## multipy g(-x) * -1
+        neg_output = nn.MatrixMultiply(self.graph, neg_xm_plus_b2, input_neg_one)
+
+
+        ### Add g(x) + (-g(x))
+        predicted_y = nn.Add(self.graph, xm_plus_b2, neg_output)
+
+
         if y is not None:
             # At training time, the correct output `y` is known.
             # Here, you should construct a loss node, and return the nn.Graph
             # that the node belongs to. The loss node must be the last node
             # added to the graph.
             "*** YOUR CODE HERE ***"
+            input_y = nn.Input(self.graph, y)
+            loss = nn.SquareLoss(self.graph, predicted_y, input_y) # adds loss node to graph
+            return self.graph
         else:
             # At test time, the correct output is unknown.
             # You should instead return your model's prediction as a numpy array
             "*** YOUR CODE HERE ***"
+            return self.graph.get_output(predicted_y)
 
 
 class DigitClassificationModel(Model):
