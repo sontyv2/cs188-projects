@@ -344,15 +344,15 @@ class DeepQModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.05 # adjust as necessary
+        self.learning_rate = 0.007 # adjust as necessary
 
         ## Layer 1
-        d = 300 # end value of this layer, 200 or 250
-        self.m = nn.Variable(1, d)
+        d = 350 # end value of this layer, 200 or 250
+        self.m = nn.Variable(4, d)
         self.b = nn.Variable(d)
 
         ## Layer 2
-        d2 = 1 # end value of last layer must always be 1
+        d2 = 2 # end value of last layer must always be 1
         self.m2 = nn.Variable(d, d2)
         self.b2 = nn.Variable(d2)
 
