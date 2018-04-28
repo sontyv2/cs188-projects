@@ -46,7 +46,7 @@ class RegressionModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.5 # adjust as necessary
+        self.learning_rate = 0.02 # adjust as necessary
 
     def run(self, x, y=None):
         """
@@ -77,20 +77,24 @@ class RegressionModel(Model):
             # that the node belongs to. The loss node must be the last node
             # added to the graph.
             "*** YOUR CODE HERE ***"
-            loss_node = nn.Variable(y.shape[0], y.shape[1]) # creates loss node with shape y - predicted_y
+            #loss_node = nn.Variable(y.shape[0], y.shape[1]) # creates loss node with shape y - predicted_y
             # loss_node.data = y - predicted_y
-            loss_node.data = y # maybe should include predicted_y
+            #loss_node.data = y # maybe should include predicted_y
             # print(loss_node.data)
 
             # np.append(x, loss_node) # x is np.array
             # graph = nn.Graph(x) # graph takes in list of variables = nodes
-            graph = nn.Graph([loss_node])
-            predicted_y = graph.get_output(loss_node)
 
-            # print("predicted y " + str(predicted_y))
-            # loss = y - predicted_y
-            # loss_node.data = loss
-            # return loss_node.data
+            m = nn.Variable(200, 1)
+            b = nn.Variable(1)
+
+            graph = nn.Graph([m, b])
+            input_x = nn.Input(graph, x)
+            input_y = nn.Input(graph, y)
+            xm = nn.MatrixMultiply(graph, input_x, m)
+            xm_plus_b = nn.MatrixVectorAdd(graph, xm, b)
+            loss = nn.SquareLoss(graph, xm_plus_b, input_y)
+
             return graph
 
         else:
