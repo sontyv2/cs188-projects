@@ -47,11 +47,18 @@ class RegressionModel(Model):
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
         self.learning_rate = 0.02 # adjust as necessary
-        d = 1 # end value of this layer. later can change to 300 when add more layers
+
+        ## Layer 1
+        d = 100 # end value of this layer. later can change to 300 when add more layers
         self.m = nn.Variable(1, d)
-        # self.b = nn.Variable(1, d) # maybe just (1)
-        self.b = nn.Variable(1)
-        self.graph = nn.Graph([self.m, self.b])
+        self.b = nn.Variable(d)
+
+        ## Layer 2
+        d2 = 1 # end value of last layer must always be 1
+        self.m2 = nn.Variable(d, d2)
+        self.b2 = nn.Variable(d2)
+
+        
 
 
     def run(self, x, y=None):
@@ -77,15 +84,19 @@ class RegressionModel(Model):
         """
         "*** YOUR CODE HERE ***"
         # graph = nn.Graph([self.m, self.b])
-        input_x = nn.Input(self.graph, x)
-        # print("m.shape " + str(self.m.data.shape))
-        # print("b.shape " + str(self.b.data.shape))
 
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        input_x = nn.Input(self.graph, x)
+
+        ## Layer 1
         xm = nn.MatrixMultiply(self.graph, input_x, self.m)
-        # print("BEFORE MATRIX VECTOR ADD")
         xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
-        # print("AFTER MATRIX VECTOR ADD")
-        # print("input_x.shape " + str(input_x.data.shape))
+        xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+
+        ## Layer 2
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2)
+        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2)        
 
         if y is not None:
             # At training time, the correct output `y` is known.
@@ -104,15 +115,14 @@ class RegressionModel(Model):
 
             # print("y type " + str(type(y)))
             input_y = nn.Input(self.graph, y)
-            loss = nn.SquareLoss(self.graph, xm_plus_b, input_y) # adds loss node to graph
+            loss = nn.SquareLoss(self.graph, xm_plus_b2, input_y) # adds loss node to graph
             return self.graph
 
         else:
             # At test time, the correct output is unknown.
             # You should instead return your model's prediction as a numpy array
             "*** YOUR CODE HERE ***"
-            # return xm_plus_b
-            return self.graph.get_output(xm_plus_b)
+            return self.graph.get_output(xm_plus_b2)
 
 
 class OddRegressionModel(Model):
