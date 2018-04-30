@@ -457,7 +457,7 @@ class LanguageIDModel(Model):
         self.learning_rate = 0.007 # adjust as necessary
 
         ## Layer 1
-        d = 350 # end value of this layer, 200 or 250
+        d = self.num_chars # end value of this layer, 200 or 250
         self.m = nn.Variable(4, d)
         self.b = nn.Variable(d)
 
@@ -465,6 +465,7 @@ class LanguageIDModel(Model):
         d2 = 2 # end value of last layer must always be 1
         self.m2 = nn.Variable(d, d2)
         self.b2 = nn.Variable(d2)
+
 
     def run(self, xs, y=None):
         """
@@ -505,6 +506,7 @@ class LanguageIDModel(Model):
 
         Hint: you may use the batch_size variable in your code
         """
+
         batch_size = xs[0].shape[0]
 
         "*** YOUR CODE HERE ***"
@@ -512,7 +514,7 @@ class LanguageIDModel(Model):
 
         """
         1. one hot encode each character C into a vector C_0 --> ascii ( d = 8)
-        2. h_0 starts out as a zero vector of dimensionality d
+        2. h_0 starts out as a zero vector of dimensionality d ?????
         3. h1 = f(h0, c0) using the xm + b, relu format
         4. ... hn = f(hn, cn) where n is the number of characters in the input word (for loop)
         row of matrix h
@@ -522,23 +524,28 @@ class LanguageIDModel(Model):
         """
 
         self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
-        input_xs = nn.Input(self.graph, xs)
-        h = np.zeros_like((5,1))
+        h = np.zeros((batch_size, self.num_chars))
+        h = nn.Input(self.graph, h)
 
-        for c in range(len(xs)): # c is the ith letter of n words
-            # Encode c
-            for i in range(num_chars):
-                # np.transpose
+        print(xs)
 
+        for c in range(len(xs)): # c is the ith letter of the word
+            input_xs = nn.Input(self.graph, xs[c])
+            input_xs = np.transpose(input_xs)
             # Layer 
             xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
+            hm = nn.MatrixMultiply(self.graph, h, self.m)
             xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
-            xm_plus_b_relu = nn.ReLU(self.graph, xm_plus_b)
+            xm_plus_b_plus_hm = nn.MatrixVectorAdd(self.graph, xm_plus_b, hm)
+            xm_plus_b_plus_hm_relu = nn.ReLU(self.graph, xm_plus_b_plus_hm)
+
+            h = xm_plus_b_plus_hm_relu
 
         # Last layer
-        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_relu, self.m2)
+        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_plus_hm_relu, self.m2)
         xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
         # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
+        # need to add h as well!!! ????
 
         predicted_y = xm_plus_b2
         if y is not None:
