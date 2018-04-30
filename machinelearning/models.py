@@ -457,7 +457,7 @@ class LanguageIDModel(Model):
         self.learning_rate = 0.007 # adjust as necessary
 
         ## Layer 1
-        d = self.num_chars # end value of this layer, 200 or 250
+        d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
         self.m = nn.Variable(4, d)
         self.b = nn.Variable(d)
 
@@ -527,24 +527,33 @@ class LanguageIDModel(Model):
         h = np.zeros((batch_size, self.num_chars))
         h = nn.Input(self.graph, h)
 
-        print(xs)
+        #print(xs)
 
-        for c in range(len(xs)): # c is the ith letter of the word
+        for c in range(len(xs)): # c is the ith letter of the n words I UNDERSTAND NOW
+            #xs_c = np.transpose(xs[c])
             input_xs = nn.Input(self.graph, xs[c])
-            input_xs = np.transpose(input_xs)
-            # Layer 
-            xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
-            hm = nn.MatrixMultiply(self.graph, h, self.m)
-            xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
-            xm_plus_b_plus_hm = nn.MatrixVectorAdd(self.graph, xm_plus_b, hm)
-            xm_plus_b_plus_hm_relu = nn.ReLU(self.graph, xm_plus_b_plus_hm)
 
-            h = xm_plus_b_plus_hm_relu
+            # Layer 
+
+            x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
+            xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
+
+            #try adding togehter first then multiplying by m and adding b, and then relu
+            #rn we still have dimension errors
+
+            # xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
+            # hm = nn.MatrixMultiply(self.graph, h, self.m)
+            # hm_plus_b = nn.MatrixVectorAdd(self.graph, hm, self.b)
+            # xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
+            # xm_hm_b = nn.MatrixVectorAdd(self.graph, xm_plus_b, hm_plus_b)
+            # xm_hm_b_relu = nn.ReLU(self.graph, xm_hm_b)
+
+            # h = xm_hm_b_relu
+            print(h)
 
         # Last layer
-        xm2 = nn.MatrixMultiply(self.graph, xm_plus_b_plus_hm_relu, self.m2)
+        xm2 = nn.MatrixMultiply(self.graph, h, self.m2)
         xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
-        # xm_plus_b_relu2 = nn.ReLU(self.graph, xm_plus_b2) 
         # need to add h as well!!! ????
 
         predicted_y = xm_plus_b2
