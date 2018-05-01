@@ -458,7 +458,7 @@ class LanguageIDModel(Model):
 
         ## Layer 1
         d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
-        self.m = nn.Variable(4, d)
+        self.m = nn.Variable(d, 1)
         self.b = nn.Variable(d)
 
         ## Layer 2
@@ -537,6 +537,9 @@ class LanguageIDModel(Model):
 
             x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
             xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
+            xhm_plus_b = nn.MatrixVectorAdd(self.graph, xhm, self.b)
+            relu = nn.ReLU(self.graph, xhm_plus_b)
+            h = relu
 
             #try adding togehter first then multiplying by m and adding b, and then relu
             #rn we still have dimension errors
@@ -559,7 +562,7 @@ class LanguageIDModel(Model):
         predicted_y = xm_plus_b2
         if y is not None:
             "*** YOUR CODE HERE ***"
-            input_q_target = nn.Input(self.graph, Q_target)
+            input_q_target = nn.Input(self.graph, y)
             loss = nn.SoftmaxLoss(self.graph, predicted_y, input_q_target) # adds loss node to graph
             return self.graph
         else:
