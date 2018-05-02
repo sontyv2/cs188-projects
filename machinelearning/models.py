@@ -344,7 +344,7 @@ class DeepQModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.007 # adjust as necessary
+        self.learning_rate = 0.008 # adjust as necessary
 
         ## Layer 1
         d = 350 # end value of this layer, 200 or 250
@@ -454,7 +454,7 @@ class LanguageIDModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.006 # adjust as necessary
+        self.learning_rate = 0.01 # adjust as necessary
 
         self.d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
         self.m = nn.Variable(self.num_chars, self.d)
