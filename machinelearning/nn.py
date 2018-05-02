@@ -355,8 +355,8 @@ class MatrixMultiply(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
-        # print("inputs[0].shape " + str(inputs[0].shape))
-        # print("inputs[1].shape " + str(inputs[1].shape))
+        #print("inputs[0].shape " + str(inputs[0].shape))
+        #print("inputs[1].shape " + str(inputs[1].shape))
         return inputs[0].dot(inputs[1])
 
     @staticmethod
@@ -384,6 +384,8 @@ class MatrixVectorAdd(FunctionNode):
     @staticmethod
     def forward(inputs):
         "*** YOUR CODE HERE ***"
+        #print("inputs[0].shape " + str(inputs[0].shape))
+        #print("inputs[1].shape " + str(inputs[1].shape))
         return inputs[0] + inputs[1] ## double check
 
     @staticmethod

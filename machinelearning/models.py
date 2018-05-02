@@ -456,15 +456,14 @@ class LanguageIDModel(Model):
         "*** YOUR CODE HERE ***"
         self.learning_rate = 0.007 # adjust as necessary
 
-        ## Layer 1
-        d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
-        self.m = nn.Variable(d, 1)
-        self.b = nn.Variable(d)
+        #Layer 1
+        self.d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
+        self.m = nn.Variable(self.num_chars, self.d)
+        self.b = nn.Variable(self.d)
 
-        ## Layer 2
-        d2 = 2 # end value of last layer must always be 1
-        self.m2 = nn.Variable(d, d2)
-        self.b2 = nn.Variable(d2)
+        # Layer 2
+        self.d2 = 5 # end value of last layer must always be 1
+        self.m2 = nn.Variable(self.d, self.d2)
 
 
     def run(self, xs, y=None):
@@ -523,43 +522,29 @@ class LanguageIDModel(Model):
         5. pass final h into one more round of neural network and output predicted y
         """
 
-        self.graph = nn.Graph([self.m, self.b, self.m2, self.b2])
+        self.graph = nn.Graph([self.m, self.b, self.m2])
+        #self.graph = nn.Graph([self.xw1, self.xw1, self.hw1, self.hw2, self.b1, self.b2])
         h = np.zeros((batch_size, self.num_chars))
-        h = nn.Input(self.graph, h)
 
-        #print(xs)
+        for c in xs: # c is the ith letter of the n words I UNDERSTAND NOW
+            h = nn.Input(self.graph, h)
 
-        for c in range(len(xs)): # c is the ith letter of the n words I UNDERSTAND NOW
-            #xs_c = np.transpose(xs[c])
-            input_xs = nn.Input(self.graph, xs[c])
+            input_xs = nn.Input(self.graph, c)
 
             # Layer 
-
             x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
+
             xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
+
             xhm_plus_b = nn.MatrixVectorAdd(self.graph, xhm, self.b)
             relu = nn.ReLU(self.graph, xhm_plus_b)
-            h = relu
+            h = self.graph.get_output(relu)
 
-            #try adding togehter first then multiplying by m and adding b, and then relu
-            #rn we still have dimension errors
 
-            # xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
-            # hm = nn.MatrixMultiply(self.graph, h, self.m)
-            # hm_plus_b = nn.MatrixVectorAdd(self.graph, hm, self.b)
-            # xm_plus_b = nn.MatrixVectorAdd(self.graph, xm, self.b)
-            # xm_hm_b = nn.MatrixVectorAdd(self.graph, xm_plus_b, hm_plus_b)
-            # xm_hm_b_relu = nn.ReLU(self.graph, xm_hm_b)
+        #last layer
+        result = nn.MatrixMultiply(self.graph, relu, self.m2)
 
-            # h = xm_hm_b_relu
-            print(h)
-
-        # Last layer
-        xm2 = nn.MatrixMultiply(self.graph, h, self.m2)
-        xm_plus_b2 = nn.MatrixVectorAdd(self.graph, xm2, self.b2) ## construction of g(x)
-        # need to add h as well!!! ????
-
-        predicted_y = xm_plus_b2
+        predicted_y = result
         if y is not None:
             "*** YOUR CODE HERE ***"
             input_q_target = nn.Input(self.graph, y)
