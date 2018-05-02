@@ -454,16 +454,16 @@ class LanguageIDModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.007 # adjust as necessary
+        self.learning_rate = 0.006 # adjust as necessary
 
-        #Layer 1
         self.d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
         self.m = nn.Variable(self.num_chars, self.d)
+        self.m2 = nn.Variable(self.num_chars, self.d)
         self.b = nn.Variable(self.d)
+        self.b2 = nn.Variable(self.d)
 
-        # Layer 2
         self.d2 = 5 # end value of last layer must always be 1
-        self.m2 = nn.Variable(self.d, self.d2)
+        self.w = nn.Variable(self.d, self.d2)
 
 
     def run(self, xs, y=None):
@@ -521,28 +521,40 @@ class LanguageIDModel(Model):
         At the end
         5. pass final h into one more round of neural network and output predicted y
         """
+        #h = np.zeros((batch_size, self.num_chars))
 
-        self.graph = nn.Graph([self.m, self.b, self.m2])
+        h = nn.Variable(batch_size, self.num_chars)
         #self.graph = nn.Graph([self.xw1, self.xw1, self.hw1, self.hw2, self.b1, self.b2])
-        h = np.zeros((batch_size, self.num_chars))
+        self.graph = nn.Graph([self.m, self.b, self.m2, self.w, h])
 
         for c in xs: # c is the ith letter of the n words I UNDERSTAND NOW
-            h = nn.Input(self.graph, h)
 
             input_xs = nn.Input(self.graph, c)
+            #h = nn.Variable(self.graph, self)
 
-            # Layer 
-            x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
+            # attempt 1, accuracy of 38% 
+            # x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
+            # xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
+            # xhm_plus_b = nn.MatrixVectorAdd(self.graph, xhm, self.b)
+            # relu = nn.ReLU(self.graph, xhm_plus_b)
 
-            xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
+            xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
+        
+            hm = nn.MatrixMultiply(self.graph, h, self.m2)
 
-            xhm_plus_b = nn.MatrixVectorAdd(self.graph, xhm, self.b)
-            relu = nn.ReLU(self.graph, xhm_plus_b)
-            h = self.graph.get_output(relu)
+            x_plus_h = nn.Add(self.graph, xm, hm)
+
+            x_plus_h_plus_b = nn.MatrixVectorAdd(self.graph, x_plus_h, self.b)
+
+            relu = nn.ReLU(self.graph, x_plus_h_plus_b)
+
+            h = relu
+
 
 
         #last layer
-        result = nn.MatrixMultiply(self.graph, relu, self.m2)
+
+        result = nn.MatrixMultiply(self.graph, relu, self.w)
 
         predicted_y = result
         if y is not None:
