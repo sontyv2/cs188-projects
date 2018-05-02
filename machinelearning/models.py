@@ -454,7 +454,7 @@ class LanguageIDModel(Model):
         # Remember to set self.learning_rate!
         # You may use any learning rate that works well for your architecture
         "*** YOUR CODE HERE ***"
-        self.learning_rate = 0.01 # adjust as necessary
+        self.learning_rate = 0.011 # adjust as necessary
 
         self.d = self.num_chars # end value of this layer, 200 or 250 #could just be self.num_chars
         self.m = nn.Variable(self.num_chars, self.d)
@@ -530,13 +530,6 @@ class LanguageIDModel(Model):
         for c in xs: # c is the ith letter of the n words I UNDERSTAND NOW
 
             input_xs = nn.Input(self.graph, c)
-            #h = nn.Variable(self.graph, self)
-
-            # attempt 1, accuracy of 38% 
-            # x_plus_h = nn.MatrixVectorAdd(self.graph, input_xs, h)
-            # xhm = nn.MatrixMultiply(self.graph, x_plus_h, self.m)
-            # xhm_plus_b = nn.MatrixVectorAdd(self.graph, xhm, self.b)
-            # relu = nn.ReLU(self.graph, xhm_plus_b)
 
             xm = nn.MatrixMultiply(self.graph, input_xs, self.m)
         
